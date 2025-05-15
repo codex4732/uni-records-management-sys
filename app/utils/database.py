@@ -16,13 +16,14 @@ def init_db(app):
         
         # Create tables (ensure models are imported first)
         from app.models.student import Student
-        """from app.models.lecturer import Lecturer
-        from app.models.non_acad_staff import Non_academic_staff
+        from app.models.lecturer import Lecturer
+        from app.models.non_acad_staff import NonAcademicStaff
         from app.models.course import Course
         from app.models.department import Department
         from app.models.program import Program
-        from app.models.research_project import Research_project
-        from app.models.stud_course_enroll import Student_course_enrollment"""
+        from app.models.research_project import ResearchProject
+        from app.models.association_tables import enrollments, course_lecturers, project_team_members
+        from app.models.base import BaseModel
         
         db.create_all()
         print("✅ Database tables created")
