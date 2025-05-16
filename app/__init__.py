@@ -1,8 +1,9 @@
 from flask import Flask, request
+from flask_restx import Api
 
 from .config import config
 from .utils.database import db
-from .routes import api_bp
+from .routes.api import ns as api_namespace
 from .utils.validation import validate_id
 
 def create_app(config_name='development'):
@@ -12,14 +13,22 @@ def create_app(config_name='development'):
     
     # Initialize extensions
     db.init_app(app)
+    
+    # Configure Flask-RESTx
+    api = Api(
+        app,
+        version='1.0',
+        title='University Record Management System API',
+        description='API documentation for URMS',
+        doc='/api/docs'
+    )
+    
+    # Add namespaces
+    api.add_namespace(api_namespace)
 
-    # Register blueprints
-    app.register_blueprint(api_bp, url_prefix='/api')
-
-    # Register before_request handler
+    # Register middleware
     @app.before_request
     def validate_ids():
-        # request.view_args may be None if route doesn't have parameters
         if request.view_args:
             ids = [v for k, v in request.view_args.items() if 'id' in k]
             if ids:

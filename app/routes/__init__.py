@@ -1,1 +1,1 @@
-from .api import api_bp
+from .api import ns as api_namespace
