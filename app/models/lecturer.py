@@ -5,6 +5,7 @@ class Lecturer(db.Model):
 
     lecturer_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
     academic_qualifications = db.Column(db.String(200), nullable=False)
     employment_type = db.Column(db.String(100), nullable=False)
     contract_details = db.Column(db.String(100))
@@ -17,8 +18,18 @@ class Lecturer(db.Model):
     department_id = db.Column(db.Integer, db.ForeignKey('departments.department_id'))
     courses = db.relationship('Course', secondary='course_lecturers', back_populates='lecturers')
     advisees = db.relationship('Student', back_populates='advisor')
-    research_group = db.relationship('ResearchProject', back_populates='principal_investigator', uselist=False)
-    projects = db.relationship('ResearchProject', secondary='project_team_members', back_populates='team_members')
-    
+    research_projects = db.relationship('ResearchProject', back_populates='principal_investigator')
+    research_group = db.relationship('ResearchProject', secondary='project_team_members', back_populates='team_members')
+
+    def to_dict(self):
+        return {
+            "lecturer_id": self.lecturer_id,
+            "name": self.name,
+            "email": self.email,
+            "department": self.department.name if self.department else None,
+            "courses": [c.code for c in self.courses],
+            "research_areas": self.research_interests.split(';') if self.research_interests else []
+        }
+
     def __repr__(self):
         return f"<Lecturer {self.lecturer_id} - {self.name}>"

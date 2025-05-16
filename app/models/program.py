@@ -13,5 +13,14 @@ class Program(db.Model):
     # Relationships
     students = db.relationship('Student', backref='program')
 
+    def to_dict(self):
+        return {
+            "program_id": self.program_id,
+            "name": self.name,
+            "degree": self.degree_awarded,
+            "duration_years": self.duration,
+            "enrolled_students": len(self.students)
+        }
+
     def __repr__(self):
         return f"<Program {self.program_id} - {self.name}>"

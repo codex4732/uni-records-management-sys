@@ -14,5 +14,15 @@ class Department(db.Model):
     lecturers = db.relationship('Lecturer', backref='department')
     staff_members = db.relationship('NonAcademicStaff', backref='department')
 
+    def to_dict(self):
+        return {
+            "department_id": self.department_id,
+            "name": self.name,
+            "faculty": self.faculty,
+            "research_areas": self.research_areas,
+            "courses": [c.to_dict() for c in self.courses],
+            "programs": [p.name for p in self.programs]
+        }
+
     def __repr__(self):
         return f"<Department {self.department_id} - {self.name}>"

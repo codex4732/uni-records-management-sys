@@ -15,6 +15,20 @@ class Course(db.Model):
     department_id = db.Column(db.Integer, db.ForeignKey('departments.department_id'))
     students = db.relationship('Student', secondary='enrollments', back_populates='courses')
     lecturers = db.relationship('Lecturer', secondary='course_lecturers', back_populates='courses')
+
+    def to_dict(self):
+        return {
+            "course_id": self.course_id,
+            "code": self.code,
+            "name": self.name,
+            "description": self.description,
+            "level": self.level,
+            "credits": self.credits,
+            "schedule": self.schedule,
+            "department_id": self.department_id,
+            "student_count": len(self.students),
+            "lecturer_count": len(self.lecturers)
+        }
     
     def __repr__(self):
         return f"<Course {self.code} - {self.name}>"

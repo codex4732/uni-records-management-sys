@@ -11,5 +11,13 @@ class NonAcademicStaff(db.Model):
     # Relationships
     department_id = db.Column(db.Integer, db.ForeignKey('departments.department_id'))
 
+    def to_dict(self):
+        return {
+            "staff_id": self.staff_id,
+            "name": self.name,
+            "position": f"{self.job_title} ({self.employment_type})",
+            "department": self.department.name if self.department else None
+        }
+
     def __repr__(self):
         return f"<NonAcademicStaff {self.staff_id} - {self.name}>"
