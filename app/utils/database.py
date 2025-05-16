@@ -10,9 +10,13 @@ def init_db(app):
         db_uri = app.config['SQLALCHEMY_DATABASE_URI']
         
         # Create database if it doesn't exist
-        if not database_exists(db_uri):
-            create_database(db_uri)
-            print(f"✅ Created database: {db_uri.split('/')[-1]}")
+        try:
+            if not database_exists(db_uri):
+                create_database(db_uri)
+                print(f"✅ Created database: {db_uri.split('/')[-1]}")
+        except Exception as e:
+            app.logger.error(f"Database initialization failed: {e}")
+            raise
         
         # Create tables (ensure models are imported first)
         from app.models.student import Student
