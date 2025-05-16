@@ -7,7 +7,7 @@ class Course(db.Model):
     code = db.Column(db.String(10), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(250), nullable=False)
-    level = db.Column(db.String(10), nullable=False)
+    level = db.Column(db.String(20), nullable=False)
     credits = db.Column(db.Integer, nullable=False)
     schedule = db.Column(db.String(250))
     

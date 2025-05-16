@@ -12,6 +12,7 @@ class Program(db.Model):
 
     # Relationships
     students = db.relationship('Student', backref='program')
+    department_id = db.Column(db.Integer, db.ForeignKey('departments.department_id'))
 
     def to_dict(self):
         return {
@@ -19,6 +20,7 @@ class Program(db.Model):
             "name": self.name,
             "degree": self.degree_awarded,
             "duration_years": self.duration,
+            "department_id": self.department_id,
             "enrolled_students": len(self.students)
         }
 
