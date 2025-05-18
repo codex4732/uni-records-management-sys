@@ -29,8 +29,16 @@ class ProductionConfig(Config):
         'mysql+pymysql://prod_user:prod_password@localhost/urms_prod'
     )
 
+class TestConfig(Config):
+    """Test configuration"""
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = 'test-key'
+
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
+    'testing': TestConfig,
     'default': DevelopmentConfig
 }
