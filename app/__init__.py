@@ -1,4 +1,5 @@
 from flask import Flask, request
+from flask_migrate import Migrate
 from flask_restx import Api
 
 from .config import config
@@ -14,6 +15,9 @@ def create_app(config_name='development'):
     # Initialize extensions
     db.init_app(app)
     
+    # Initialize Flask-Migrate
+    migrate = Migrate(app, db)
+
     # Configure Flask-RESTx
     api = Api(
         app,
