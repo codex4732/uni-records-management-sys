@@ -38,8 +38,8 @@ lecturer_model = ns.model('Lecturer', {
 
 course_model = ns.model('Course', {
     'course_id': fields.Integer(description='Unique course identifier'),
-    'code': fields.String(required=True, pattern='[A-Z]{2,4}\d{3}', example='CS101', 
-             description='Course code (e.g. CS101)'),
+    'code': fields.String(required=True, pattern=r'[A-Z]{2,4}\d{3}', example='CS101', 
+                          description='Course code (e.g. CS101)'),
     'name': fields.String(required=True, description='Course title'),
     'credits': fields.Integer(min=1, max=30, description='Academic credits'),
     'department_id': fields.Integer(description='Offering department ID')
