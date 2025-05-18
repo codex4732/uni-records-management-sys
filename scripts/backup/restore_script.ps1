@@ -1,5 +1,13 @@
-## MySQL Restore Script with Decryption
-## This script identifies the most recent MySQL database backup, decrypts it using OpenSSL, and performs a database restore.
+<#
+.SYNOPSIS
+    MySQL Restore Script with Decryption
+.DESCRIPTION
+    This script identifies the most recent MySQL database backup, decrypts it using OpenSSL, and performs a database restore.
+.NOTES
+    Original work from: https://github.com/kn-msccs-uol/collegedatabasesystem
+    Originally licensed under MIT. Relicensed under BSD 3-Clause with permission
+    from original author. Significant modifications made for uni-records-management-sys.
+#>
 
 # Configuration
 $config = @{

@@ -1,5 +1,13 @@
-## MySQL Backup Script with Encryption
-## This script performs a MySQL database backup, encrypts it using OpenSSL, and manages retention of backups.
+<#
+.SYNOPSIS
+    MySQL Backup Script with Encryption
+.DESCRIPTION
+    This script performs a MySQL database backup, encrypts it using OpenSSL, and manages retention of backups.
+.NOTES
+    Original work from: https://github.com/kn-msccs-uol/collegedatabasesystem
+    Originally licensed under MIT. Relicensed under BSD 3-Clause with permission
+    from original author. Significant modifications made for uni-records-management-sys.
+#>
 
 # Configuration
 $config = @{
