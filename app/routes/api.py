@@ -109,7 +109,7 @@ class FinalYearHighAchievers(Resource):
     def get(self):
         """List final year students with average grade above 70%"""
         try:
-            students = Student.query.filter(
+            students = db.session.query(Student).filter(
                 Student.year_of_study == 4,
                 Student.current_grades > 70
             ).all()
@@ -140,7 +140,7 @@ class UnregisteredStudents(Resource):
                 enrollments.c.enrollment_date.between(start_date, end_date)
             )
             
-            students = Student.query.filter(
+            students = db.session.query(Student).filter(
                 ~Student.student_id.in_(subquery)
             ).all()
             
@@ -164,7 +164,7 @@ class StudentAdvisor(Resource):
         """Retrieve contact information for a student's faculty advisor"""
         validate_id(student_id)
         try:
-            student = Student.query.get(student_id)
+            student = db.session.get(Student, student_id)
             if not student or not student.advisor:
                 ns.abort(404, "Advisor not found for this student")
                 
@@ -187,7 +187,7 @@ class LecturersByExpertise(Resource):
     def get(self, research_area):
         """Search for lecturers with expertise in a specific research area"""
         try:
-            lecturers = Lecturer.query.filter(
+            lecturers = db.session.query(Lecturer).filter(
                 Lecturer.research_interests.ilike(f"%{research_area}%")
             ).all()
             
@@ -210,7 +210,7 @@ class DepartmentCourses(Resource):
         """List all courses offered by a specific department"""
         validate_id(department_id)
         try:
-            courses = Course.query.join(
+            courses = db.session.query(Course).join(
                 Course.lecturers
             ).filter(
                 Lecturer.department_id == department_id
@@ -265,7 +265,7 @@ class LecturerAdvisees(Resource):
         """Retrieve list of students advised by a specific lecturer"""
         validate_id(lecturer_id)
         try:
-            students = Student.query.filter(
+            students = db.session.query(Student).filter(
                 Student.advisor_id == lecturer_id
             ).all()
             
@@ -288,7 +288,7 @@ class DepartmentStaff(Resource):
         """Find all non-academic staff members in a specific department"""
         validate_id(department_id)
         try:
-            staff = NonAcademicStaff.query.filter(
+            staff = db.session.query(NonAcademicStaff).filter(
                 NonAcademicStaff.department_id == department_id
             ).all()
             
