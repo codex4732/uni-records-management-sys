@@ -141,7 +141,7 @@ def load_people_data() -> pd.DataFrame:
             # Remove invalid email rows
             df = df[df['Email'].str.contains('@', na=False)]
 
-        print(f"✓ Loaded {len(df)} valid records from Excel file")
+        print(f"✅ Loaded {len(df)} valid records from Excel file")
         return df
 
     except pd.errors.EmptyDataError:
