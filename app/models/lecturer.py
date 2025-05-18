@@ -31,5 +31,9 @@ class Lecturer(db.Model):
             "research_areas": self.research_interests.split(';') if self.research_interests else []
         }
 
+    def update_course_load(self):
+        """Update course_load based on number of assigned courses"""
+        self.course_load = len(self.courses)
+
     def __repr__(self):
         return f"<Lecturer {self.lecturer_id} - {self.name}>"
