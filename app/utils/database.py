@@ -30,4 +30,4 @@ def init_db(app):
         from app.models.base import BaseModel
         
         db.create_all()
-        print("✅ Database tables created")
+        print("✅ Database tables READY")
