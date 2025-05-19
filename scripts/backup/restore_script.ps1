@@ -83,17 +83,18 @@ function Get-LatestBackup {
     
     try {
         $latestBackup = Get-ChildItem -Path $BackupDir -Filter "*_enc_backup_*.sql" |
+            Where-Object { $_.Name -notmatch '_decrypt\.sql$' } |
             Sort-Object LastWriteTime -Descending |
             Select-Object -First 1
 
         if ($null -eq $latestBackup) {
-            Write-Log "No backup files found in $BackupDir"
+            Write-Log "No encrypted backup files found in $BackupDir"
             return $null
         }
 
         return $latestBackup.FullName
     } catch {
-        Write-Log "Error finding latest backup: $_"
+        Write-Log "Error finding latest encrypted backup: $_"
         return $null
     }
 }
