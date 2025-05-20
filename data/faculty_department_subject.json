@@ -1,0 +1,411 @@
+{
+    "Faculty of Arts and Humanities": {
+        "Department of English Language and Literature": [
+            "Shakespearean Drama", "Modern Poetry", "Literary Theory", "Creative Writing", "Victorian Literature"
+        ],
+        "Department of History": [
+            "Ancient Civilizations", "Medieval Europe", "Modern World History", "History of Asia", "The Forgotten Natives"
+        ],
+        "Department of Philosophy": [
+            "Ethics", "Metaphysics", "Logic", "Philosophy of Mind", "Political Philosophy"
+        ],
+        "Department of Classics": [
+            "Classical Reception", "Graeco-Roman Mythology", "Ancient Greek Literature", "Classical Archaeology", "Historiography"
+        ],
+        "Department of Music": [
+            "Music Theory", "Music History", "Composition", "Performance Studies", "Ethnomusicology"
+        ],
+        "Department of Fine Art": [
+            "Painting", "Sculpture", "Art History", "Printmaking", "Contemporary Art"
+        ],
+        "Department of Theatre and Performance": [
+            "Acting", "Directing", "Stagecraft", "Theatre History", "Performance Studies"
+        ],
+        "Department of Film Studies": [
+            "Film Theory", "Screenwriting", "Film History", "Documentary Studies", "Cinematography"
+        ],
+        "Department of Medieval and Modern Languages": [
+            "French Literature", "German Language", "Spanish Culture", "Translation Studies", "Comparative Linguistics"
+        ],
+        "Department of Linguistics": [
+            "Phonetics", "Syntax", "Sociolinguistics", "Language Acquisition", "Morphology"
+        ],
+        "Department of Theology and Religion": [
+            "Religious Ethics", "Abrahamic Studies", "World Religions", "Philosophy of Religion", "Sikhi History"
+        ],
+        "Department of Archaeology": [
+            "Archaeological Methods", "Prehistoric Archaeology", "Egyptology", "Archaeobotany", "Heritage Management"
+        ],
+        "Department of Cultural Studies": [
+            "Popular Culture", "Media Studies", "Cultural Theory", "Gender and Culture", "Globalization and Culture"
+        ],
+        "Department of Asian and Middle Eastern Studies": [
+            "Indo-Sino History", "Arabic Language", "Japanese Literature", "Islamic Studies", "South Asian Politics"
+        ],
+        "Department of Media and Communications": [
+            "Media Theory", "Journalism", "Digital Media", "Public Relations", "Media Ethics"
+        ],
+        "Department of Digital Humanities": [
+            "Digital Textual Analysis", "Data Visualization in Humanities", "Digital Archives", "Humanities Computing", "Digital Publishing"
+        ],
+        "Department of Visual Cultures": [
+            "Visual Theory", "Photography", "Film and Visual Arts", "Art Criticism", "Museum Studies"
+        ],
+        "Department of Architecture and History of Art": [
+            "Architectural History", "Urban Design", "Art Criticism", "Modern Architecture", "Conservation Studies"
+        ]
+    },
+    "Faculty of Social Sciences": {
+        "Department of Sociology": [
+            "Social Theory", "Sociology of Education", "Urban Sociology", "Social Inequality", "Marcusian Theory"
+        ],
+        "Department of Anthropology": [
+            "Cultural Anthropology", "Biological Anthropology", "Ethnography", "Anthropology of Religion", "Anthropological Theory"
+        ],
+        "Department of Political Science": [
+            "Comparative Politics", "Political Theory", "International Relations", "Public Policy", "Political Economy"
+        ],
+        "Department of International Relations": [
+            "Global Governance", "Diplomacy", "International Security", "International Organizations", "Foreign Policy Analysis"
+        ],
+        "Department of Human Geography": [
+            "Urban Geography", "Economic Geography", "Cultural Geography", "Geographical Information Systems", "Population Geography"
+        ],
+        "Department of Social Policy": [
+            "Welfare Policy", "Health Policy", "Education Policy", "Social Justice", "Policy Analysis"
+        ],
+        "Department of Criminology": [
+            "Criminal Justice", "Crime and Society", "Forensic Criminology", "Victimology", "Penology"
+        ],
+        "Department of Social Work": [
+            "Child Welfare", "Community Development", "Mental Health Social Work", "Social Work Practice", "Social Policy"
+        ],
+        "Department of Education": [
+            "Curriculum Studies", "Educational Psychology", "Assessment and Evaluation", "Education Policy", "Inclusive Education"
+        ],
+        "Department of Development Studies": [
+            "Development Theory", "Poverty and Inequality", "Sustainable Development", "Globalization", "Project Management in Development"
+        ],
+        "Department of Psychology": [
+            "Cognitive Psychology", "Developmental Psychology", "Clinical Psychology", "Social Psychology", "Neuropsychology"
+        ],
+        "Department of Gender Studies": [
+            "Male Gaze and Feminist Theory", "Gender and Society", "Masculinity Studies", "Queer Theory", "Gender and Development"
+        ],
+        "Department of Urban Studies": [
+            "Urban Planning", "Urban Sociology", "Urban Policy", "Urban Economics", "Sustainable Cities"
+        ],
+        "Department of Migration Studies": [
+            "Migration Policy", "Refugee Studies", "Transnationalism", "Human Rights and Migration", "Diaspora Studies"
+        ],
+        "Department of Peace and Conflict Studies": [
+            "Conflict Resolution", "Peacebuilding", "International Security", "Humanitarian Intervention", "Post-Conflict Reconstruction"
+        ],
+        "Department of Labour Studies": [
+            "Labour Economics", "Industrial Relations", "Workplace Law", "Employment Policy", "Trade Unionism"
+        ]
+    },
+    "Faculty of Mathematics and Science": {
+        "Department of Mathematics": [
+            "Calculus", "Linear Algebra", "Probability Theory", "Abstract Algebra", "Mathematical Modelling"
+        ],
+        "Department of Physics": [
+            "Classical Mechanics", "Quantum Physics", "Thermodynamics", "Electromagnetism", "Theoretical Physics"
+        ],
+        "Department of Chemistry": [
+            "Organic Chemistry", "Inorganic Chemistry", "Physical Chemistry", "Analytical Chemistry", "Biochemistry"
+        ],
+        "Department of Biology": [
+            "Cell Biology", "Genetics", "Evolutionary Biology", "Ecology", "Molecular Biology"
+        ],
+        "Department of Earth Sciences": [
+            "Geology", "Geophysics", "Mineralogy", "Paleontology", "Earth System Science"
+        ],
+        "Department of Environmental Science": [
+            "Environmental Policy", "Climate Change", "Pollution Control", "Sustainable Development", "Ecotoxicology"
+        ],
+        "Department of Biochemistry": [
+            "Enzymology", "Metabolism", "Protein Structure", "Molecular Genetics", "Cell Signaling"
+        ],
+        "Department of Genetics": [
+            "Population Genetics", "Genomics", "Human Genetics", "Genetic Engineering", "Epigenetics"
+        ],
+        "Department of Microbiology": [
+            "Virology", "Bacteriology", "Immunology", "Microbial Genetics", "Pathogenic Microbiology"
+        ],
+        "Department of Zoology": [
+            "Animal Physiology", "Vertebrate Zoology", "Invertebrate Zoology", "Animal Behaviour", "Wildlife Conservation"
+        ],
+        "Department of Botany": [
+            "Plant Physiology", "Plant Taxonomy", "Plant Ecology", "Plant Pathology", "Botanical Genetics"
+        ],
+        "Department of Ecology": [
+            "Ecosystem Ecology", "Conservation Biology", "Population Ecology", "Restoration Ecology", "Landscape Ecology"
+        ],
+        "Department of Marine Biology": [
+            "Marine Ecology", "Oceanography", "Marine Conservation", "Fisheries Science", "Marine Mammalogy"
+        ],
+        "Department of Materials Science": [
+            "Materials Characterization", "Polymer Science", "Nanomaterials", "Metallurgy", "Ceramics"
+        ],
+        "Department of Geology": [
+            "Petrology", "Structural Geology", "Sedimentology", "Geochemistry", "Geological Mapping"
+        ],
+        "Department of Neuroscience": [
+            "Neuroanatomy", "Cognitive Neuroscience", "Neurophysiology", "Neuropharmacology", "Behavioural Neuroscience"
+        ],
+        "Department of Plant Sciences": [
+            "Plant Genetics", "Plant Biotechnology", "Plant Development", "Plant-Environment Interactions", "Plant Physiology"
+        ],
+        "Department of Animal Sciences": [
+            "Animal Nutrition", "Animal Genetics", "Livestock Production", "Animal Reproduction", "Animal Health"
+        ]
+    },
+    "Faculty of Engineering": {
+        "Department of Civil Engineering": [
+            "Structural Analysis", "Geotechnical Engineering", "Transportation Engineering", "Hydraulics", "Construction Management"
+        ],
+        "Department of Mechanical Engineering": [
+            "Thermodynamics", "Fluid Mechanics", "Dynamics", "Manufacturing Processes", "Machine Design"
+        ],
+        "Department of Electrical Engineering": [
+            "Circuit Analysis", "Power Systems", "Control Systems", "Electronics", "Signal Processing"
+        ],
+        "Department of Chemical Engineering": [
+            "Chemical Reaction Engineering", "Process Design", "Thermodynamics", "Separation Processes", "Biochemical Engineering"
+        ],
+        "Department of Aerospace Engineering": [
+            "Aerodynamics", "Flight Mechanics", "Propulsion", "Aircraft Structures", "Avionics"
+        ],
+        "Department of Biomedical Engineering": [
+            "Biomedical Instrumentation", "Biomaterials", "Medical Imaging", "Biomechanics", "Tissue Engineering"
+        ],
+        "Department of Structural Engineering": [
+            "Structural Dynamics", "Earthquake Engineering", "Steel Structures", "Concrete Technology", "Bridge Engineering"
+        ],
+        "Department of Environmental Engineering": [
+            "Water Treatment", "Air Pollution Control", "Solid Waste Management", "Environmental Impact Assessment", "Environmental Systems Design"
+        ],
+        "Department of Materials Engineering": [
+            "Metallurgy", "Polymer Engineering", "Ceramics Engineering", "Composite Materials", "Materials Failure Analysis"
+        ],
+        "Department of Systems Engineering": [
+            "Systems Modelling", "Operations Research", "Systems Optimization", "Control Systems", "Systems Integration"
+        ],
+        "Department of Mechatronics": [
+            "Robotics", "Sensors and Actuators", "Embedded Systems", "Automation", "Intelligent Systems"
+        ],
+        "Department of Nuclear Engineering": [
+            "Nuclear Reactor Physics", "Radiation Protection", "Nuclear Materials", "Nuclear Power Plants", "Nuclear Safety"
+        ],
+        "Department of Process Engineering": [
+            "Process Control", "Process Simulation", "Process Optimization", "Chemical Process Safety", "Process Economics"
+        ],
+        "Department of Automotive Engineering": [
+            "Vehicle Dynamics", "Automotive Electronics", "Internal Combustion Engines", "Automotive Design", "Alternative Fuels"
+        ]
+    },
+    "Faculty of Medicine and Health Sciences": {
+        "Department of Medicine": [
+            "Internal Medicine", "Clinical Skills", "Medical Ethics", "Cardiology", "Infectious Diseases"
+        ],
+        "Department of Psychiatry": [
+            "Clinical Psychiatry", "Psychopharmacology", "Child and Adolescent Psychiatry", "Forensic Psychiatry", "Psychotherapy"
+        ],
+        "Department of Paediatrics": [
+            "Child Health", "Neonatology", "Paediatric Infectious Diseases", "Paediatric Nutrition", "Paediatric Cardiology"
+        ],
+        "Department of Obstetrics and Gynaecology": [
+            "Obstetrics", "Gynaecological Oncology", "Reproductive Endocrinology", "Maternal-Fetal Medicine", "Urogynaecology"
+        ],
+        "Department of Public Health": [
+            "Epidemiology", "Health Promotion", "Global Health", "Environmental Health", "Health Policy"
+        ],
+        "Department of Epidemiology": [
+            "Disease Surveillance", "Biostatistics", "Infectious Disease Epidemiology", "Chronic Disease Epidemiology", "Epidemiologic Methods"
+        ],
+        "Department of Pharmacology": [
+            "Clinical Pharmacology", "Drug Safety", "Pharmacodynamics", "Pharmacokinetics", "Toxicology"
+        ],
+        "Department of Clinical Neurosciences": [
+            "Neurodegenerative Diseases", "Clinical Neurology", "Neuroimaging", "Epileptology", "Neurorehabilitation"
+        ],
+        "Department of Oncology": [
+            "Cancer Biology", "Medical Oncology", "Radiation Oncology", "Cancer Genetics", "Palliative Care"
+        ],
+        "Department of Pathology": [
+            "Histopathology", "Cytopathology", "Molecular Pathology", "Forensic Pathology", "Immunopathology"
+        ],
+        "Department of Radiology": [
+            "Diagnostic Imaging", "Interventional Radiology", "Neuroradiology", "Musculoskeletal Imaging", "Pediatric Radiology"
+        ],
+        "Department of Immunology": [
+            "Immunogenetics", "Autoimmunity", "Immunotherapy", "Transplant Immunology", "Allergy and Immunology"
+        ],
+        "Department of Cardiology": [
+            "Electrocardiography", "Interventional Cardiology", "Heart Failure", "Cardiac Imaging", "Arrhythmias"
+        ],
+        "Department of Dermatology": [
+            "Cutaneous Oncology", "Dermatopathology", "Pediatric Dermatology", "Cosmetic Dermatology", "Immunodermatology"
+        ],
+        "Department of Orthopaedics": [
+            "Trauma Surgery", "Sports Medicine", "Pediatric Orthopaedics", "Joint Replacement", "Spine Surgery"
+        ],
+        "Department of Ophthalmology": [
+            "Retinal Diseases", "Corneal Disorders", "Glaucoma", "Pediatric Ophthalmology", "Oculoplastic Surgery"
+        ],
+        "Department of Dentistry": [
+            "Oral Surgery", "Orthodontics", "Periodontology", "Prosthodontics", "Pediatric Dentistry"
+        ]
+    },
+    "Faculty of Business and Economics": {
+        "Department of Accounting": [
+            "Financial Accounting", "Managerial Accounting", "Auditing", "Taxation", "Accounting Information Systems"
+        ],
+        "Department of Finance": [
+            "Corporate Finance", "Investment Analysis", "Financial Markets", "Risk Management", "International Finance"
+        ],
+        "Department of Business Administration": [
+            "Business Ethics", "Entrepreneurship", "Business Communication", "Business Law", "Business Strategy"
+        ],
+        "Department of International Business": [
+            "International Trade", "Global Marketing", "Cross-Cultural Management", "International Business Law", "International Finance"
+        ],
+        "Department of Economics": [
+            "Microeconomics", "Macroeconomics", "Econometrics", "Public Economics", "International Economics"
+        ],
+        "Department of Human Resource Management": [
+            "Recruitment and Selection", "Performance Management", "Employee Relations", "Compensation Management", "Training and Development"
+        ],
+        "Department of Business Analytics": [
+            "Data Analytics", "Business Intelligence", "Predictive Analytics", "Data Visualization", "Big Data Management"
+        ],
+        "Department of Organizational Behaviour": [
+            "Motivation", "Team Dynamics", "Organizational Culture", "Decision Making", "Conflict Management"
+        ],
+        "Department of Tourism and Hospitality": [
+            "Tourism Management", "Hospitality Operations", "Event Management", "Sustainable Tourism", "Hotel Management"
+        ],
+        "Department of Insurance and Risk Management": [
+            "Insurance Law", "Risk Assessment", "Actuarial Science", "Claims Management", "Insurance Marketing"
+        ],
+        "Department of Public Sector Management": [
+            "Public Administration", "Public Policy", "Government Finance", "Public Sector Ethics", "Public Service Delivery"
+        ],
+        "Department of Corporate Governance": [
+            "Corporate Law", "Board Governance", "Corporate Social Responsibility", "Risk Management", "Internal Controls"
+        ],
+        "Department of Project Management": [
+            "Project Planning", "Project Risk Management", "Project Scheduling", "Agile Project Management", "Project Evaluation"
+        ]
+    },
+    "Faculty of Law": {
+        "Department of Public Law": [
+            "Constitutional Law", "Administrative Law", "Human Rights Law", "Public International Law", "Judicial Review"
+        ],
+        "Department of Private Law": [
+            "Contract Law", "Tort Law", "Property Law", "Family Law", "Succession Law"
+        ],
+        "Department of International Law": [
+            "International Humanitarian Law", "International Criminal Law", "Law of Treaties", "International Trade Law", "International Environmental Law"
+        ],
+        "Department of Criminal Law": [
+            "Criminal Procedure", "Substantive Criminal Law", "Criminology", "Sentencing", "Juvenile Justice"
+        ],
+        "Department of Human Rights Law": [
+            "International Human Rights", "Civil Liberties", "Anti-Discrimination Law", "Refugee Law", "Humanitarian Law"
+        ],
+        "Department of Environmental Law": [
+            "Climate Change Law", "Natural Resources Law", "Pollution Control Law", "Biodiversity Law", "Environmental Justice"
+        ],
+        "Department of Intellectual Property Law": [
+            "Patent Law", "Copyright Law", "Trademark Law", "Trade Secrets", "IP Licensing"
+        ],
+        "Department of Labour Law": [
+            "Employment Law", "Industrial Relations Law", "Occupational Health and Safety Law", "Collective Bargaining", "Labour Dispute Resolution"
+        ],
+        "Department of Tax Law": [
+            "Income Tax Law", "Corporate Taxation", "International Tax Law", "Tax Policy", "Tax Planning"
+        ],
+        "Department of Family Law": [
+            "Marriage Law", "Divorce Law", "Child Custody Law", "Adoption Law", "Domestic Violence Law"
+        ],
+        "Department of Corporate Law": [
+            "Company Law", "Mergers and Acquisitions", "Securities Regulation", "Corporate Governance", "Corporate Finance Law"
+        ],
+        "Department of Maritime Law": [
+            "Law of the Sea", "Shipping Law", "Marine Insurance Law", "Admiralty Law", "International Maritime Law"
+        ],
+        "Department of Competition Law": [
+            "Antitrust Law", "Merger Control", "Cartel Regulation", "Abuse of Dominance", "Competition Policy"
+        ],
+        "Department of Insurance Law": [
+            "Insurance Contracts", "Insurance Regulation", "Claims Handling", "Reinsurance Law", "Insurance Litigation"
+        ],
+        "Department of Banking Law": [
+            "Banking Regulation", "Financial Services Law", "Lending Law", "Bank Insolvency Law", "Payment Systems Law"
+        ],
+        "Department of Dispute Resolution": [
+            "Arbitration", "Mediation", "Negotiation", "Litigation", "Alternative Dispute Resolution"
+        ],
+        "Department of Legal Theory": [
+            "Jurisprudence", "Philosophy of Law", "Legal Interpretation", "Law and Morality", "Critical Legal Studies"
+        ],
+        "Department of Property Law": [
+            "Land Law", "Real Estate Law", "Leasehold Law", "Easements", "Property Transactions"
+        ]
+    },
+    "Faculty of Computer Science": {
+        "Department of Computer Science": [
+            "Programming Fundamentals", "Data Structures", "Algorithms", "Operating Systems", "Computer Architecture"
+        ],
+        "Department of Machine Learning": [
+            "Supervised Learning", "Deep Learning", "Machine Learning", "Natural Language Processing", "Robotics", "AI Ethics"
+        ],
+        "Department of Software Engineering": [
+            "Software Design", "Software Testing", "Agile Development", "Software Project Management", "Requirements Engineering"
+        ],
+        "Department of Information Systems": [
+            "Database Management", "Information Systems Analysis", "Enterprise Systems", "IT Project Management", "Business Process Modeling"
+        ],
+        "Department of Cyber Security": [
+            "Cyber Risk Management", "Cryptography", "Cybersecurity Policy", "Penetration Testing", "Digital Forensics"
+        ],
+        "Department of Data Science": [
+            "Data Mining", "Statistical Analysis", "Big Data Analytics", "Data Visualization", "Predictive Modeling"
+        ],
+        "Department of Human-Computer Interaction": [
+            "User Interface Design", "Usability Testing", "Interaction Design", "User Experience Research", "Accessible Computing"
+        ],
+        "Department of Algorithms and Complexity": [
+            "Algorithm Analysis", "Computational Complexity", "Graph Algorithms", "Approximation Algorithms", "Randomized Algorithms"
+        ],
+        "Department of Programming Languages": [
+            "Compiler Design", "Programming Paradigms", "Type Systems", "Language Semantics", "Functional Programming"
+        ],
+        "Department of Robotics": [
+            "Robot Kinematics", "Autonomous Systems", "Robot Perception", "Control Systems", "Robotics Programming"
+        ],
+        "Department of Embedded Systems": [
+            "Embedded Programming", "Microcontrollers", "Real-Time Systems", "IoT Devices", "Embedded Networking"
+        ],
+        "Department of Computer Vision": [
+            "Image Processing", "Pattern Recognition", "3D Vision", "Object Detection", "Visual Analytics"
+        ],
+        "Department of Distributed Systems": [
+            "Distributed Algorithms", "Cloud Computing", "Parallel Computing", "Fault Tolerance", "Distributed Databases"
+        ],
+        "Department of Cloud Computing": [
+            "Cloud Architecture", "Virtualization", "Cloud Security", "Cloud Storage", "Cloud Application Development"
+        ],
+        "Department of Quantum Computing": [
+            "Quantum Algorithms", "Quantum Cryptography", "Quantum Information Theory", "Quantum Programming", "Quantum Hardware"
+        ],
+        "Department of Game Development": [
+            "Game Design", "Game Programming", "Game Graphics", "Game Physics", "Interactive Storytelling"
+        ],
+        "Department of Computer Architecture": [
+            "Processor Design", "Memory Systems", "Parallel Architectures", "Computer Organization", "Hardware Design"
+        ]
+    }
+}
