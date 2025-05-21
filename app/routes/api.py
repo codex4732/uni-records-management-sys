@@ -16,7 +16,7 @@ ns = Namespace('api',
 )
 
 # ======================
-# Response Models
+# Response models
 # ======================
 student_model = ns.model('Student', {
     'student_id': fields.Integer(description='Unique student identifier'),
