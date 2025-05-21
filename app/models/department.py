@@ -1,5 +1,6 @@
 from app.utils.database import db
 
+
 class Department(db.Model):
     __tablename__ = 'departments'
 

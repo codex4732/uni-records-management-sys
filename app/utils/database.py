@@ -3,12 +3,13 @@ from sqlalchemy_utils import database_exists, create_database
 
 db = SQLAlchemy()
 
+
 def init_db(app):
     """Initialize database and tables programmatically"""
     with app.app_context():
         # Get database URI from config
         db_uri = app.config['SQLALCHEMY_DATABASE_URI']
-        
+
         # Create database if it doesn't exist
         try:
             if not database_exists(db_uri):
@@ -17,7 +18,7 @@ def init_db(app):
         except Exception as e:
             app.logger.error(f"Database initialization failed: {e}")
             raise
-        
+
         # Create tables (ensure models are imported first)
         from app.models.student import Student
         from app.models.lecturer import Lecturer
@@ -28,6 +29,6 @@ def init_db(app):
         from app.models.research_project import ResearchProject
         from app.models.association_tables import enrollments, course_lecturers, project_team_members
         from app.models.base import BaseModel
-        
+
         db.create_all()
         print("✅ Database tables READY")

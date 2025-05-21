@@ -1,6 +1,7 @@
 from sqlalchemy import CheckConstraint
 from app.utils.database import db
 
+
 class Student(db.Model):
     __tablename__ = 'students'
 
@@ -14,7 +15,7 @@ class Student(db.Model):
     current_grades = db.Column(db.Float, nullable=False)
     graduation_status = db.Column(db.Boolean, default=False)
     disciplinary_record = db.Column(db.Boolean, default=False)
-    
+
     # Relationships
     enrolled_program_id = db.Column(db.Integer, db.ForeignKey('programs.program_id'))
     courses = db.relationship('Course', secondary='enrollments', back_populates='students')
@@ -31,6 +32,6 @@ class Student(db.Model):
             "advisor": self.advisor.name if self.advisor else None,
             "courses_enrolled": [c.code for c in self.courses]
         }
-    
+
     def __repr__(self):
         return f"<Student {self.student_id} - {self.name}>"

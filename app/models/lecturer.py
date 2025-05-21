@@ -1,5 +1,6 @@
 from app.utils.database import db
 
+
 class Lecturer(db.Model):
     __tablename__ = 'lecturers'
 
@@ -13,7 +14,7 @@ class Lecturer(db.Model):
     course_load = db.Column(db.Integer, nullable=False, default=0)
     research_interests = db.Column(db.String(250))
     publications = db.Column(db.Text)
-    
+
     # Relationships
     department_id = db.Column(db.Integer, db.ForeignKey('departments.department_id'))
     courses = db.relationship('Course', secondary='course_lecturers', back_populates='lecturers')

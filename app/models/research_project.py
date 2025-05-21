@@ -1,5 +1,6 @@
 from app.utils.database import db
 
+
 class ResearchProject(db.Model):
     __tablename__ = 'research_projects'
 

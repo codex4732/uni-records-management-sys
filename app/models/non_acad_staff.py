@@ -1,5 +1,6 @@
 from app.utils.database import db
 
+
 class NonAcademicStaff(db.Model):
     __tablename__ = 'non_academic_staff'
 

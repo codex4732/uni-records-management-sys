@@ -9,11 +9,11 @@ from app.utils.validation import validate_id
 from app.utils.database import db
 
 # Initialize Namespace
-ns = Namespace('api', 
-    description='University Record Management System Operations', 
-    path='/api',
-    ordered=True  # Maintain endpoint order in Swagger UI
-)
+ns = Namespace('api',
+               description='University Record Management System Operations',
+               path='/api',
+               ordered=True  # Maintain endpoint order in Swagger UI
+               )
 
 # ======================
 # Response models
@@ -38,7 +38,7 @@ lecturer_model = ns.model('Lecturer', {
 
 course_model = ns.model('Course', {
     'course_id': fields.Integer(description='Unique course identifier'),
-    'code': fields.String(required=True, pattern=r'[A-Z]{2,4}\d{3}', example='CS101', 
+    'code': fields.String(required=True, pattern=r'[A-Z]{2,4}\d{3}', example='CS101',
                           description='Course code (e.g. CS101)'),
     'name': fields.String(required=True, description='Course title'),
     'credits': fields.Integer(min=1, max=30, description='Academic credits'),
@@ -62,6 +62,7 @@ staff_model = ns.model('Staff', {
     'position': fields.String(description='Job title and employment type'),
     'department': fields.String(description='Affiliated department')
 })
+
 
 # ======================
 # API Endpoints
@@ -89,16 +90,17 @@ class StudentsInCourse(Resource):
                 Course.code == course_code,
                 Lecturer.lecturer_id == lecturer_id
             ).all()
-            
+
             if not students:
                 ns.abort(404, "No students found for this course/lecturer combination")
-                
+
             return [s.to_dict() for s in students]
         except SQLAlchemyError as e:
             db.session.rollback()
             ns.abort(500, "Database error occurred")
         except Exception as e:
             ns.abort(500, str(e))
+
 
 # Query 2: Final year students with >70% average
 @ns.route('/students/final-year/high-achievers')
@@ -113,14 +115,15 @@ class FinalYearHighAchievers(Resource):
                 Student.year_of_study == 4,
                 Student.current_grades > 70
             ).all()
-            
+
             if not students:
                 ns.abort(404, "No high-achieving final year students found")
-                
+
             return [s.to_dict() for s in students]
         except SQLAlchemyError as e:
             db.session.rollback()
             ns.abort(500, "Database error occurred")
+
 
 # Query 3: Students without current semester courses
 @ns.route('/students/unregistered')
@@ -135,22 +138,23 @@ class UnregisteredStudents(Resource):
             current_year = now.year
             start_date = date(current_year, 1, 1)
             end_date = date(current_year, 6, 30) if now.month <= 6 else date(current_year, 12, 31)
-            
+
             subquery = db.session.query(enrollments.c.student_id).filter(
                 enrollments.c.enrollment_date.between(start_date, end_date)
             )
-            
+
             students = db.session.query(Student).filter(
                 ~Student.student_id.in_(subquery)
             ).all()
-            
+
             if not students:
                 ns.abort(404, "All students are registered for current semester")
-                
+
             return [s.to_dict() for s in students]
         except SQLAlchemyError as e:
             db.session.rollback()
             ns.abort(500, "Database error occurred")
+
 
 # Query 4: Faculty advisor contact for student
 @ns.route('/students/<student_id>/advisor')
@@ -167,7 +171,7 @@ class StudentAdvisor(Resource):
             student = db.session.get(Student, student_id)
             if not student or not student.advisor:
                 ns.abort(404, "Advisor not found for this student")
-                
+
             return {
                 "name": student.advisor.name,
                 "email": student.advisor.email,
@@ -176,6 +180,7 @@ class StudentAdvisor(Resource):
         except SQLAlchemyError as e:
             db.session.rollback()
             ns.abort(500, "Database error occurred")
+
 
 # Query 5: Lecturers by research expertise
 @ns.route('/lecturers/expertise/<research_area>')
@@ -190,14 +195,15 @@ class LecturersByExpertise(Resource):
             lecturers = db.session.query(Lecturer).filter(
                 Lecturer.research_interests.ilike(f"%{research_area}%")
             ).all()
-            
+
             if not lecturers:
                 ns.abort(404, f"No lecturers found with expertise in '{research_area}'")
-                
-            return [l.to_dict() for l in lecturers]
+
+            return [lecturers.to_dict() for lecturers in lecturers]
         except SQLAlchemyError as e:
             db.session.rollback()
             ns.abort(500, "Database error occurred")
+
 
 # Query 6: Courses by department
 @ns.route('/courses/department/<department_id>')
@@ -215,14 +221,15 @@ class DepartmentCourses(Resource):
             ).filter(
                 Lecturer.department_id == department_id
             ).distinct().all()
-            
+
             if not courses:
                 ns.abort(404, "No courses found for this department")
-                
+
             return [c.to_dict() for c in courses]
         except SQLAlchemyError as e:
             db.session.rollback()
             ns.abort(500, "Database error occurred")
+
 
 # Query 7: Lecturers with most supervised projects
 @ns.route('/lecturers/top-supervisors')
@@ -242,17 +249,18 @@ class TopSupervisors(Resource):
             ).group_by(Lecturer.lecturer_id).order_by(
                 func.count(ResearchProject.project_id).desc()
             ).limit(10).all()
-            
+
             if not lecturers:
                 ns.abort(404, "No research projects found")
-                
+
             return [{
-                "lecturer": l[0].to_dict(),
-                "projects_count": l[1]
-            } for l in lecturers]
+                "lecturer": lecturers[0].to_dict(),
+                "projects_count": lecturers[1]
+            } for lecturers in lecturers]
         except SQLAlchemyError as e:
             db.session.rollback()
             ns.abort(500, "Database error occurred")
+
 
 # Query 8: Students advised by lecturer
 @ns.route('/lecturer/<lecturer_id>/advisees')
@@ -268,14 +276,15 @@ class LecturerAdvisees(Resource):
             students = db.session.query(Student).filter(
                 Student.advisor_id == lecturer_id
             ).all()
-            
+
             if not students:
                 ns.abort(404, "This lecturer has no advisees")
-                
+
             return [s.to_dict() for s in students]
         except SQLAlchemyError as e:
             db.session.rollback()
             ns.abort(500, "Database error occurred")
+
 
 # Query 9: Staff by department
 @ns.route('/staff/department/<department_id>')
@@ -291,10 +300,10 @@ class DepartmentStaff(Resource):
             staff = db.session.query(NonAcademicStaff).filter(
                 NonAcademicStaff.department_id == department_id
             ).all()
-            
+
             if not staff:
                 ns.abort(404, "No staff found in this department")
-                
+
             return [s.to_dict() for s in staff]
         except SQLAlchemyError as e:
             db.session.rollback()

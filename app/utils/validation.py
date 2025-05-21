@@ -1,5 +1,6 @@
 from flask import abort
 
+
 def validate_id(*ids):
     for id in ids:
         if not str(id).isdigit():

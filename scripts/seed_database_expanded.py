@@ -25,7 +25,6 @@ from app.utils.database import db
 
 # Initialize Flask application context
 app = create_app()
-#random.seed(42)  # Set fixed seed for reproducible results
 
 
 def load_faculty_data() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
@@ -46,11 +45,11 @@ def load_faculty_data() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
             # Create both mappings in a single pass for efficiency
             faculty_departments: Dict[str, List[str]] = {}
             dept_subjects: Dict[str, List[str]] = {}
-            
+
             for faculty, departments in data.items():
                 faculty_departments[faculty] = list(departments.keys())
                 dept_subjects.update(departments)
-            
+
             return faculty_departments, dept_subjects
     except FileNotFoundError:
         print("❌ Faculty data file not found")
@@ -193,29 +192,29 @@ def create_test_data() -> None:
             # Clear existing database
             db.drop_all()
             db.create_all()
-            
+
             # Load and validate source data with minimum requirements
             min_required = {
                 'students': 100,
                 'lecturers': 20,
                 'staff': 10
             }
-            
+
             people_df = load_people_data()
-            
+
             # Ensure minimum required records
             total_required = sum(min_required.values())
             if len(people_df) < total_required:
                 raise ValueError(
-                    f"Insufficient records in Excel file. " 
+                    f"Insufficient records in Excel file. "
                     f"Need at least {total_required}, found {len(people_df)}"
                 )
-            
+
             # Split data ensuring minimum requirements
             student_data = people_df.iloc[:800]
             lecturer_data = people_df.iloc[800:925]
             staff_data = people_df.iloc[925:]
-            
+
             if len(student_data) < min_required['students']:
                 raise ValueError(f"Insufficient student records. Need {min_required['students']}")
             if len(lecturer_data) < min_required['lecturers']:
@@ -228,14 +227,14 @@ def create_test_data() -> None:
             # ======================
             departments = []
             faculty_dept_map = {}
-            
+
             for faculty, dept_list in FACULTY_DEPARTMENTS.items():
                 # Select 3-5 departments per faculty
                 selected_depts = random.sample(
-                    dept_list, 
+                    dept_list,
                     min(random.randint(3, 5), len(dept_list))
                 )
-                
+
                 faculty_depts = []
                 for dept_name in selected_depts:
                     # Create department
@@ -251,7 +250,7 @@ def create_test_data() -> None:
                                 "Applied Research", "Sustainable Development"
                             ]) for _ in range(random.randint(1, 3))
                         ])
-                    
+
                     dept = Department(
                         name=dept_name,
                         faculty=faculty,
@@ -260,9 +259,9 @@ def create_test_data() -> None:
                     departments.append(dept)
                     faculty_depts.append(dept)
                     db.session.add(dept)
-                
+
                 faculty_dept_map[faculty] = faculty_depts
-            
+
             # ======================
             # Create Lecturers
             # ======================
@@ -271,7 +270,7 @@ def create_test_data() -> None:
                 "PhD", "x2 PhD", "MPhil", "MRes",
                 "Masters", "x2 Masters", "DPhil"
             ]
-            
+
             def create_lecturer(row, department):
                 """Helper function to create a lecturer with given data."""
                 research_interests = None
@@ -285,7 +284,7 @@ def create_test_data() -> None:
                         "Applied Research", "Sustainable Development"
                     ]
                     research_interests = ";".join(random.sample(interests, random.randint(1, 3)))
-                
+
                 # Contract details (nullable)
                 contract_details = None
                 if maybe_null():
@@ -293,7 +292,7 @@ def create_test_data() -> None:
                         "Tenure-track", "Tenured", "Visiting Professor",
                         "Fixed-term contract", "Research fellowship"
                     ])
-                
+
                 return Lecturer(
                     name=f"{row['First Name']} {row['Last Name']}",
                     email=row['Email'],
@@ -301,7 +300,8 @@ def create_test_data() -> None:
                     academic_qualifications=random.choice(qualifications),
                     employment_type=random.choice(["Full-Time", "Part-Time", "Contract"]),
                     contract_details=contract_details,
-                    areas_of_expertise=None if not maybe_null() else random.choice(get_department_subjects(department.name)),
+                    areas_of_expertise=None if not maybe_null() else random.choice(
+                        get_department_subjects(department.name)),
                     research_interests=research_interests,
                     publications=None if not maybe_null() else random.choice([
                         "Journal publications; Conference papers",
@@ -314,36 +314,36 @@ def create_test_data() -> None:
                 """Distribute lecturers across departments ensuring minimum requirements."""
                 attempts = 0
                 max_attempts = 100  # Prevent infinite loops
-                
+
                 while attempts < max_attempts:
                     department_counts = {dept: 0 for dept in departments}
                     lecturers = []
-                    
+
                     # Try to distribute lecturers
                     for idx, row in lecturer_data.iterrows():
                         # Prioritize departments with fewer lecturers
                         understaffed_depts = [
-                            d for d in departments 
+                            d for d in departments
                             if department_counts[d] < 2
                         ]
-                        
+
                         if understaffed_depts:
                             # Assign to understaffed department
                             department = random.choice(understaffed_depts)
                         else:
                             # All departments have minimum staff, assign randomly
                             department = random.choice(departments)
-                        
+
                         lecturer = create_lecturer(row, department)
                         lecturers.append(lecturer)
                         department_counts[department] += 1
-                    
+
                     # Check if distribution meets requirements
                     if all(count >= 2 for count in department_counts.values()):
                         return lecturers
-                    
+
                     attempts += 1
-                
+
                 raise ValueError("Failed to distribute lecturers after maximum attempts")
 
             # Use the new distribution function
@@ -354,13 +354,13 @@ def create_test_data() -> None:
             except ValueError as e:
                 print(f"❌ Error: {str(e)}")
                 sys.exit(1)
-            
+
             # ======================
             # Create Courses
             # ======================
             courses = []
             course_codes = set()
-            
+
             # Generate courses for each department
             for dept in departments:
                 # Create 1-5 courses per department
@@ -372,55 +372,57 @@ def create_test_data() -> None:
                         if code not in course_codes:
                             course_codes.add(code)
                             break
-                    
+
                     # Select 1-2 lecturers from same department
-                    dept_lecturers = [l for l in lecturers if l.department == dept]
+                    dept_lecturers = [lecturer for lecturer in lecturers if lecturer.department == dept]
                     if not dept_lecturers:
                         # Skip creating a course if no lecturers in the department are available
                         continue
-                    
+
                     course_lecturers = random.sample(
-                        dept_lecturers, 
+                        dept_lecturers,
                         min(random.randint(1, 2), len(dept_lecturers))
                     )
-                    
+
                     course_names = [
-                        "Introduction to", "Advanced", "Principles of", 
+                        "Introduction to", "Advanced", "Principles of",
                         "Topics in", "Seminar in", "Fundamentals of",
                         "Theories of", "Research Methods in"
                     ]
-                    
+
                     # Get subjects for this department from JSON mapping
                     dept_subjects = get_department_subjects(dept.name)
-                    
+
                     # If no subjects found, skip this course
                     if not dept_subjects:
                         continue
 
                     subject = random.choice(dept_subjects)
-                    
+
                     course = Course(
                         code=code,
                         name=f"{random.choice(course_names)} {subject}",
                         description=f"This course covers essential concepts in {subject}",
                         level=random.choice(["Foundation", "Undergraduate", "Graduate", "Doctoral"]),
                         credits=random.choice([5, 10, 15, 20, 30]),
-                        schedule=None if not maybe_null() else f"{random.choice(['Mon', 'Tue', 'Wed', 'Thu', 'Fri'])} {random.randint(9, 17)}:{random.choice(['00', '20', '30', '40'])}",
+                        schedule=None if not maybe_null() else f"{random.choice(['Mon', 'Tue', 'Wed', 'Thu', 'Fri'])} "
+                                                               f"{random.randint(9, 17)}:"
+                                                               f"{random.choice(['00', '20', '30', '40'])}",
                         department=dept,
                         lecturers=course_lecturers
                     )
                     courses.append(course)
                     db.session.add(course)
-            
+
             # Update course load for lecturers
             for lecturer in lecturers:
                 lecturer.update_course_load()
-            
+
             # ======================
             # Create Programs
             # ======================
             programs = []
-            
+
             # Create programs for each department
             for dept in departments:
                 # Create 1-3 programs per department
@@ -428,9 +430,9 @@ def create_test_data() -> None:
                     degree_types = ["Bachelor of", "Master of", "PhD in", 'Researcher in']
                     degree_name = FACULTY_DEGREE_MAPPING.get(dept.faculty, ["General Studies"])
                     dept_name = dept.name.replace("Department of ", "")
-                    
+
                     degree_type = random.choice(degree_types)
-                    
+
                     # Set duration based on degree type
                     if degree_type == "Bachelor of":
                         duration = random.randint(3, 4)
@@ -440,34 +442,36 @@ def create_test_data() -> None:
                         duration = random.randint(3, 5)
                     else:  # Researcher in
                         duration = random.randint(1, 3)
-                    
+
                     program = Program(
                         name=f"{degree_type} {dept_name}",
                         degree_awarded=f"{degree_type} {random.choice(degree_name)}",
                         duration=duration,
                         department=dept,
-                        course_requirements=None if not maybe_null() else f"{random.choice(['Core courses', 'Core courses plus electives'])}",
-                        enrollment_details=None if not maybe_null() else f"Open enrollment in {random.choice(['Fall', 'Spring', 'Fall/Spring', 'Winter'])}"
+                        course_requirements=None if not maybe_null()
+                        else f"{random.choice(['Core courses', 'Core courses plus electives'])}",
+                        enrollment_details=None if not maybe_null()
+                        else f"Open enrollment in {random.choice(['Fall', 'Spring', 'Fall/Spring', 'Winter'])}"
                     )
                     programs.append(program)
                     db.session.add(program)
-            
+
             # ======================
             # Create Students
             # ======================
             students = []
-            
+
             for idx, row in student_data.iterrows():
                 # Select a random program
                 program = random.choice(programs)
-                
+
                 # Select advisor from same department as program
-                dept_lecturers = [l for l in lecturers if l.department == program.department]
+                dept_lecturers = [lecturer for lecturer in lecturers if lecturer.department == program.department]
                 advisor = random.choice(dept_lecturers) if dept_lecturers else random.choice(lecturers)
-                
+
                 # Select 1-5 courses from same department
                 dept_courses = [c for c in courses if c.department == program.department]
-                
+
                 # Handle course assignment
                 if not dept_courses or random.random() < 0.12:
                     student_courses = []  # Always use empty list instead of None
@@ -476,7 +480,7 @@ def create_test_data() -> None:
                         dept_courses,
                         min(random.randint(1, 5), len(dept_courses))
                     )
-                
+
                 # Generate birth date (18-50 years old)
                 today = date.today()
                 age = random.randint(18, 50)
@@ -484,37 +488,37 @@ def create_test_data() -> None:
                 birth_month = random.randint(1, 12)
                 birth_day = random.randint(1, 28)
                 birth_date = date(birth_year, birth_month, birth_day)
-                
+
                 student = Student(
-                name=f"{row['First Name']} {row['Last Name']}",
-                email=row['Email'],
-                date_of_birth=birth_date,
-                year_of_study=random.randint(1, 4),
-                current_grades=round(random.uniform(35.0, 85.0), 1),
-                graduation_status=None if not maybe_null() else random.choice([True, False]),
-                disciplinary_record=None if not maybe_null() else random.choice([True, False]),
-                program=program,
-                advisor=advisor,
-                courses=student_courses
+                    name=f"{row['First Name']} {row['Last Name']}",
+                    email=row['Email'],
+                    date_of_birth=birth_date,
+                    year_of_study=random.randint(1, 4),
+                    current_grades=round(random.uniform(35.0, 85.0), 1),
+                    graduation_status=None if not maybe_null() else random.choice([True, False]),
+                    disciplinary_record=None if not maybe_null() else random.choice([True, False]),
+                    program=program,
+                    advisor=advisor,
+                    courses=student_courses
                 )
                 students.append(student)
                 db.session.add(student)
-            
+
             # ======================
             # Create Staff
             # ======================
             staff = []
-            
+
             job_titles = [
-                "Administrator", "Secretary", "Lab Technician", 
+                "Administrator", "Secretary", "Lab Technician",
                 "IT Support", "Librarian", "Maintenance",
                 "Security Officer", "Careers Advisor"
             ]
-            
+
             for idx, row in staff_data.iterrows():
                 # Select random department
                 department = random.choice(departments)
-                
+
                 staff_member = NonAcademicStaff(
                     name=f"{row['First Name']} {row['Last Name']}",
                     job_title=random.choice(job_titles),
@@ -523,7 +527,7 @@ def create_test_data() -> None:
                 )
                 staff.append(staff_member)
                 db.session.add(staff_member)
-            
+
             # ======================
             # Create Research Projects
             # ======================
@@ -533,39 +537,39 @@ def create_test_data() -> None:
             for _ in range(random.randint(30, 50)):
                 # Select principal investigator
                 pi = random.choice(lecturers)
-                
+
                 # Select team members (1-7 lecturers)
                 team_size = random.randint(1, 7)
                 team = random.sample(lecturers, min(team_size, len(lecturers)))
-                
+
                 # Ensure PI is in team
                 if pi not in team:
                     team.append(pi)
-                
+
                 # Generate outcomes (nullable)
                 outcomes = None
                 if maybe_null():
                     possible_outcomes = [
-                        "New international framework", "3 publications", 
+                        "New international framework", "3 publications",
                         "Patent application", "Improved algorithm",
                         "United Nations advisory", "Educational software",
                         "Conference presentation", "Industry partnership"
                     ]
                     outcomes = ";".join(random.sample(possible_outcomes, random.randint(1, 3)))
-                
+
                 project_titles = [
                     "Advanced Research in", "Study of", "Investigation into",
                     "Development of", "Analysis of", "Applications of", "Review of",
                     "Exploration of", "Impact of", "Trends in", "Future of"
                 ]
-                
+
                 subjects = [
                     "Machine Learning", "Artificial Intelligence", "Interdisciplinary Studies",
                     "Global Digital Infrastructure", "World Sustainability", "Marcusian Studies",
                     "Global Security", "Climate Change", "Academic Evolution", "European Union",
                     "[redacted] - CLASSIFIED RESEARCH", "Educational Technology", "Smart University Initiative (SUI)"
                 ]
-                
+
                 project = ResearchProject(
                     title=f"{random.choice(project_titles)} {random.choice(subjects)}",
                     funding_sources=None if not maybe_null() else random.choice([
@@ -576,12 +580,13 @@ def create_test_data() -> None:
                     principal_investigator=pi,
                     team_members=team,
                     publications=None if not maybe_null() else random.choice(["Journal publications; Conference papers",
-                                                                              "Journal publications", "Patents; Technical reports"]),
+                                                                              "Journal publications",
+                                                                              "Patents; Technical reports"]),
                     outcomes=outcomes
                 )
                 projects.append(project)
                 db.session.add(project)
-            
+
             # Commit all changes
             db.session.commit()
 

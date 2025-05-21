@@ -1,5 +1,6 @@
 from app.utils.database import db
 
+
 class Program(db.Model):
     __tablename__ = 'programs'
 
