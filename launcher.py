@@ -23,7 +23,7 @@ def run_command(command, cwd=None):
     if sys.platform.startswith('win'):
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        
+
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
@@ -41,7 +41,7 @@ def run_command(command, cwd=None):
             break
         if output:
             print(output.strip(), flush=True)
-            
+
     rc = process.poll()
     return rc
 
@@ -51,20 +51,24 @@ def start_flask_application():
     kill_process_on_port(5000)
 
     print("Waiting for Flask-RESTx (with Swagger UI) to start...")
-    
+
     # Get virtual environment paths
-    venv_path = os.path.join(os.getcwd(), ".venv", "Scripts")
-    venv_python = os.path.join(venv_path, "python.exe")
+    if sys.platform.startswith('win'):
+        venv_path = os.path.join(os.getcwd(), ".venv", "Scripts")
+        venv_python = os.path.join(venv_path, "python.exe")
+    else:
+        venv_path = os.path.join(os.getcwd(), ".venv", "bin")
+        venv_python = os.path.join(venv_path, "python")
     if not os.path.exists(venv_python):
         print(f"{Fore.RED}✗ Virtual environment Python not found at {venv_python}{Style.RESET_ALL}\n")
         sys.exit(1)
-    
+
     # Set environment variables for the new terminal
     powershell_env_setup = (
         "$env:VIRTUAL_ENV='" + os.path.dirname(venv_path) + "';",
         "$env:PATH='" + venv_path + ";" + os.environ['PATH'] + "';"
     )
-    
+
     # Launch Flask-RESTx debugger in a new terminal window
     try:
         if sys.platform.startswith('win'):
@@ -84,14 +88,22 @@ def start_flask_application():
                 f'cd "{os.getcwd()}";' +
                 f'& "{venv_python}" run.py'
             )
-            
+
             subprocess.Popen(
                 ['start', 'powershell.exe', '-NoExit', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', powershell_cmd],
                 shell=True
             )
             print(f"{Fore.GREEN}✓ Launched Standalone Debug Terminal{Style.RESET_ALL}\n")
         else:
-            subprocess.Popen(['gnome-terminal', '--', 'python', 'run.py'])
+            # On macOS, use AppleScript to open Terminal and run the Flask app
+            cwd = os.getcwd().replace('"', '\\"')
+            python_exec = venv_python.replace('"', '\\"')
+            run_script = os.path.join(cwd, 'run.py').replace('"', '\\"')
+            apple_script = (
+                f'tell application "Terminal" to do script '
+                f'"cd \\"{cwd}\\" && \\"{python_exec}\\" \\"{run_script}\\""\n'
+            )
+            subprocess.Popen(['osascript', '-e', apple_script])
     except Exception as e:
         print(f"{Fore.RED}✗ Failed to launch Standalone Debug Terminal: {str(e)}{Style.RESET_ALL}\n")
         sys.exit(1)
@@ -159,7 +171,7 @@ def main():
         f"\n{Fore.BLACK}{Back.WHITE}WELCOME TO "
         f"{Fore.BLUE}Uni-Records-Management-Sys"
         f"{Fore.BLACK} (URMS)!{Style.RESET_ALL}\n"
-        f"\n"
+        f"\n" 
         f"\n{Fore.CYAN}----- Launcher -----{Style.RESET_ALL}\n"
         f"\n"
         f"{Fore.YELLOW}Select Option:\n"
