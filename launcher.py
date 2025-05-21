@@ -13,9 +13,11 @@ import os
 init()
 sys.stdout = AnsiToWin32(sys.stdout, convert=True, strip=False, autoreset=True)
 
+
 def print_step(step_number, total_steps, message):
     """Print a formatted step message with progress indicator."""
     print(f"\n{Fore.CYAN}[Step {step_number}/{total_steps}] {message}{Style.RESET_ALL}\n")
+
 
 def run_command(command, cwd=None):
     """Run a command and stream its output."""
@@ -44,6 +46,7 @@ def run_command(command, cwd=None):
 
     rc = process.poll()
     return rc
+
 
 def start_flask_application():
     """Start the Flask application with RESTx and Swagger UI."""
@@ -78,9 +81,9 @@ def start_flask_application():
                 '[Console]::OutputEncoding = [System.Text.Encoding]::UTF8;' +
                 '[Console]::InputEncoding = [System.Text.Encoding]::UTF8;' +
                 'chcp 65001 | Out-Null;' +
-                f'Write-Host "===================================================================" -ForegroundColor Cyan;' +
-                f'Write-Host "======= ~      Uni-Records-Management-Sys (URMS) APP      ~ =======" -ForegroundColor Cyan;' +
-                f'Write-Host "===================================================================" -ForegroundColor Cyan;' +
+                f'Write-Host "===============================================================" -ForegroundColor Cyan;' +
+                f'Write-Host "===== ~      Uni-Records-Management-Sys (URMS) APP      ~ =====" -ForegroundColor Cyan;' +
+                f'Write-Host "===============================================================" -ForegroundColor Cyan;' +
                 f'Write-Host "";' +
                 f'Write-Host "Flask-RESTx (with Swagger UI)" -ForegroundColor Gray;' +
                 f'Write-Host "";' +
@@ -90,7 +93,8 @@ def start_flask_application():
             )
 
             subprocess.Popen(
-                ['start', 'powershell.exe', '-NoExit', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', powershell_cmd],
+                ['start', 'powershell.exe', '-NoExit', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command',
+                 powershell_cmd],
                 shell=True
             )
             print(f"{Fore.GREEN}✓ Launched Standalone Debug Terminal{Style.RESET_ALL}\n")
@@ -103,15 +107,20 @@ def start_flask_application():
                 f'tell application "Terminal" to do script '
                 f'"cd \\"{cwd}\\" && \\"{python_exec}\\" \\"{run_script}\\""\n'
             )
-            subprocess.Popen(['osascript', '-e', apple_script])
+            subprocess.Popen(
+                ['osascript', '-e', apple_script],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
     except Exception as e:
         print(f"{Fore.RED}✗ Failed to launch Standalone Debug Terminal: {str(e)}{Style.RESET_ALL}\n")
         sys.exit(1)
-    
+
     # Wait for Flask to be ready
     if not wait_for_flask():
         print(f"{Fore.RED}✗ Flask server failed to start{Style.RESET_ALL}\n")
         sys.exit(1)
+
 
 def wait_for_flask(url="http://localhost:5000/", max_attempts=30):
     """Wait for Flask server and Swagger UI to be ready."""
@@ -119,19 +128,20 @@ def wait_for_flask(url="http://localhost:5000/", max_attempts=30):
     attempt = 0
     while attempt < max_attempts:
         try:
-            response = requests.get(url)
-            if response.status_code in [200, 404]:
+            response = requests.get(url, allow_redirects=True)
+            if response.status_code < 500:
                 print(f"{Fore.GREEN}✓ Flask-RESTx (with Swagger UI) is ready!{Style.RESET_ALL}")
                 return True
         except requests.exceptions.ConnectionError:
             pass
-        
+
         time.sleep(1)
         attempt += 1
         sys.stdout.write('.')
         sys.stdout.flush()
-    
+
     return False
+
 
 def kill_process_on_port(port):
     """Kill any process running on the specified port."""
@@ -144,6 +154,7 @@ def kill_process_on_port(port):
                     return
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
+
 
 def check_migrations_folder_nonempty():
     """Check if the migrations folder exists and is not empty."""
@@ -162,16 +173,18 @@ def check_migrations_folder_nonempty():
 
     return has_files and has_versions_dir
 
+
 def open_web_browser():
     """Open the API documentation in a web browser."""
     webbrowser.open('http://localhost:5000/api/docs')
+
 
 def main():
     print(
         f"\n{Fore.BLACK}{Back.WHITE}WELCOME TO "
         f"{Fore.BLUE}Uni-Records-Management-Sys"
         f"{Fore.BLACK} (URMS)!{Style.RESET_ALL}\n"
-        f"\n" 
+        f"\n"
         f"\n{Fore.CYAN}----- Launcher -----{Style.RESET_ALL}\n"
         f"\n"
         f"{Fore.YELLOW}Select Option:\n"
@@ -207,18 +220,25 @@ def main():
 
             print_step(current_step, total_steps, "Starting Flask application with RESTx and Swagger UI")
 
-            start_flask_application() # Step 1
+            start_flask_application()  # Step 1
 
             current_step += 1
-        
-            # Step 2: Initialize Flask-Migrate
-            print_step(current_step, total_steps, "Initializing Flask-Migrate")
-            if run_command("flask db init") != 0:
-                print(f"{Fore.RED}✗ Flask-Migrate initialization failed{Style.RESET_ALL}")
-                sys.exit(1)
-            print(f"{Fore.GREEN}✓ Flask-Migrate initialized successfully (you can ignore the alembic.ini message){Style.RESET_ALL}")
+
+            # Step 2: Initialize Flask-Migrate (if not already initialized)
+            if check_migrations_folder_nonempty():
+                print(f"{Fore.GREEN}✓ Flask-Migrate already initialized, skipping initialization{Style.RESET_ALL}")
+            else:
+                # Ensure Flask knows which app to use for migrations
+                os.environ['FLASK_APP'] = 'run.py'
+                print_step(current_step, total_steps, "Initializing Flask-Migrate")
+                if run_command("flask db init") != 0:
+                    print(f"{Fore.RED}✗ Flask-Migrate initialization failed{Style.RESET_ALL}")
+                    sys.exit(1)
+                print(
+                    f"{Fore.GREEN}✓ Flask-Migrate initialized successfully (you can ignore the alembic.ini message)"
+                    f"{Style.RESET_ALL}")
             time.sleep(2)
-            
+
             current_step += 1
 
             # Step 3: Create initial migration
@@ -226,7 +246,7 @@ def main():
             if run_command('flask db migrate -m "Initial migration."') != 0:
                 print(f"{Fore.RED}✗ Database migration failed{Style.RESET_ALL}")
                 sys.exit(1)
-            
+
             # Verify migration creation
             if check_migrations_folder_nonempty():
                 print(f"{Fore.GREEN}✓ Database migration created successfully{Style.RESET_ALL}")
@@ -249,13 +269,14 @@ def main():
 
             # Step 5: Open API documentation
             print_step(current_step, total_steps, "Opening API documentation in web browser")
-            
+
             open_web_browser()
-            
+
             print(f"\n{Fore.GREEN}✓ ALL SETUP STEPS COMPLETED SUCCESSFULLY! ✓{Style.RESET_ALL}")
             print(f"\n{Fore.CYAN}The Flask server is running in a separate terminal window.{Style.RESET_ALL}")
             print(f"{Fore.CYAN}You can close that window when you're done with the application.{Style.RESET_ALL}")
             sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
