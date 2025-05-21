@@ -7,7 +7,7 @@ load_dotenv()
 
 class Config:
     """Base configuration with common settings"""
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-123'
+    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key-123')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     @staticmethod
@@ -15,20 +15,23 @@ class Config:
         pass
 
 
-class DevelopmentConfig(Config):
-    """Development configuration"""
+class BaseDatabaseConfig(Config):
+    """Configuration that reads the database URL from a single env var"""
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_CONNECTION_STRING')
+
+
+class DevelopmentConfig(BaseDatabaseConfig):
+    """Development configuration."""
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DEV_DATABASE_URL',
-    )
 
 
-class ProductionConfig(Config):
-    """Production configuration"""
+class ProductionConfig(BaseDatabaseConfig):
+    """Production configuration."""
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL'
-    )
 
 
-config = dict(development=DevelopmentConfig, production=ProductionConfig, default=DevelopmentConfig)
+config = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+    'default': DevelopmentConfig
+}
