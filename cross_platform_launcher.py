@@ -11,8 +11,10 @@ import os
 import platform
 
 # Initialize colorama with proper encoding
-init()
-sys.stdout = AnsiToWin32(sys.stdout, convert=True, strip=False, autoreset=True)
+init(strip=False, convert=sys.platform.startswith('win'), autoreset=True)
+
+# Force color support in non-TTY environments
+os.environ['FORCE_COLOR'] = '1'
 
 temp_files_to_cleanup = []
 
