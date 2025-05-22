@@ -192,14 +192,14 @@ class LecturersByExpertise(Resource):
     def get(self, research_area):
         """Search for lecturers with expertise in a specific research area"""
         try:
-            lecturers = db.session.query(Lecturer).filter(
+            lecturers_list = db.session.query(Lecturer).filter(
                 Lecturer.research_interests.ilike(f"%{research_area}%")
             ).all()
 
-            if not lecturers:
+            if not lecturers_list:
                 ns.abort(404, f"No lecturers found with expertise in '{research_area}'")
 
-            return [lecturers.to_dict() for lecturers in lecturers]
+            return [lecturer.to_dict() for lecturer in lecturers_list]
         except SQLAlchemyError as e:
             db.session.rollback()
             ns.abort(500, "Database error occurred")
@@ -240,7 +240,7 @@ class TopSupervisors(Resource):
     def get(self):
         """Identify lecturers who have supervised the most research projects"""
         try:
-            lecturers = db.session.query(
+            lecturers_list = db.session.query(
                 Lecturer,
                 func.count(ResearchProject.project_id).label('project_count')
             ).join(
@@ -250,13 +250,13 @@ class TopSupervisors(Resource):
                 func.count(ResearchProject.project_id).desc()
             ).limit(10).all()
 
-            if not lecturers:
+            if not lecturers_list:
                 ns.abort(404, "No research projects found")
 
             return [{
-                "lecturer": lecturers[0].to_dict(),
-                "projects_count": lecturers[1]
-            } for lecturers in lecturers]
+                "lecturer": lecturer[0].to_dict(),
+                "projects_count": lecturer[1]
+            } for lecturer in lecturers_list]
         except SQLAlchemyError as e:
             db.session.rollback()
             ns.abort(500, "Database error occurred")

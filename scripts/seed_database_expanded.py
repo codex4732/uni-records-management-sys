@@ -348,7 +348,7 @@ def create_test_data() -> None:
 
             # Use the new distribution function
             try:
-                lecturers = distribute_lecturers(lecturer_data, departments)
+                lecturers_list = distribute_lecturers(lecturer_data, departments)
                 for lecturer in lecturers:
                     db.session.add(lecturer)
             except ValueError as e:
@@ -374,7 +374,7 @@ def create_test_data() -> None:
                             break
 
                     # Select 1-2 lecturers from same department
-                    dept_lecturers = [lecturer for lecturer in lecturers if lecturer.department == dept]
+                    dept_lecturers = [lecturer for lecturer in lecturers_list if lecturer.department == dept]
                     if not dept_lecturers:
                         # Skip creating a course if no lecturers in the department are available
                         continue
@@ -415,7 +415,7 @@ def create_test_data() -> None:
                     db.session.add(course)
 
             # Update course load for lecturers
-            for lecturer in lecturers:
+            for lecturer in lecturers_list:
                 lecturer.update_course_load()
 
             # ======================
@@ -466,7 +466,7 @@ def create_test_data() -> None:
                 program = random.choice(programs)
 
                 # Select advisor from same department as program
-                dept_lecturers = [lecturer for lecturer in lecturers if lecturer.department == program.department]
+                dept_lecturers = [lecturer for lecturer in lecturers_list if lecturer.department == program.department]
                 advisor = random.choice(dept_lecturers) if dept_lecturers else random.choice(lecturers)
 
                 # Select 1-5 courses from same department
