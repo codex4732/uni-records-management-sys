@@ -7,16 +7,19 @@ from app.models import (
     Program, NonAcademicStaff, ResearchProject
 )
 
+
 @pytest.fixture
 def app():
     """Create and configure a test Flask app instance."""
     app = create_app('testing')
     return app
 
+
 @pytest.fixture
 def client(app):
     """Create a test client for the app."""
     return app.test_client()
+
 
 @pytest.fixture
 def _db(app):
@@ -25,6 +28,7 @@ def _db(app):
         db.create_all()
         yield db
         db.drop_all()
+
 
 @pytest.fixture
 def department(_db):
@@ -37,6 +41,7 @@ def department(_db):
     _db.session.add(dept)
     _db.session.commit()
     return dept
+
 
 @pytest.fixture
 def lecturer(department, _db):
@@ -52,6 +57,7 @@ def lecturer(department, _db):
     _db.session.add(lecturer)
     _db.session.commit()
     return lecturer
+
 
 @pytest.fixture
 def course(department, lecturer, _db):
@@ -69,6 +75,7 @@ def course(department, lecturer, _db):
     _db.session.commit()
     return course
 
+
 @pytest.fixture
 def program(department, _db):
     """Create a test program."""
@@ -81,6 +88,7 @@ def program(department, _db):
     _db.session.add(program)
     _db.session.commit()
     return program
+
 
 @pytest.fixture
 def student(program, lecturer, course, _db):
@@ -99,6 +107,7 @@ def student(program, lecturer, course, _db):
     _db.session.commit()
     return student
 
+
 @pytest.fixture
 def staff(department, _db):
     """Create a test non-academic staff member."""
@@ -111,6 +120,7 @@ def staff(department, _db):
     _db.session.add(staff)
     _db.session.commit()
     return staff
+
 
 @pytest.fixture
 def research_project(lecturer, _db):
@@ -126,6 +136,7 @@ def research_project(lecturer, _db):
     _db.session.commit()
     return project
 
+
 # Test Department Model
 def test_department_creation(department):
     """Test department creation and basic attributes."""
@@ -133,12 +144,14 @@ def test_department_creation(department):
     assert department.faculty == "Engineering"
     assert "Artificial Intelligence" in department.research_areas
 
+
 def test_department_relationships(department, lecturer, course, program, staff):
     """Test department relationships with other models."""
     assert lecturer in department.lecturers
     assert course in department.courses
     assert program in department.programs
     assert staff in department.staff_members
+
 
 def test_department_to_dict(department):
     """Test department to_dict method."""
@@ -148,6 +161,7 @@ def test_department_to_dict(department):
     assert isinstance(dept_dict['courses'], list)
     assert isinstance(dept_dict['programs'], list)
 
+
 # Test Lecturer Model
 def test_lecturer_creation(lecturer):
     """Test lecturer creation and basic attributes."""
@@ -155,11 +169,13 @@ def test_lecturer_creation(lecturer):
     assert lecturer.email == "a.smith@uni.ac.uk"
     assert lecturer.employment_type == "Full-Time"
 
+
 def test_lecturer_relationships(lecturer, course, student, research_project):
     """Test lecturer relationships with other models."""
     assert course in lecturer.courses
     assert student in lecturer.advisees
     assert research_project in lecturer.research_projects
+
 
 def test_lecturer_to_dict(lecturer):
     """Test lecturer to_dict method."""
@@ -168,10 +184,12 @@ def test_lecturer_to_dict(lecturer):
     assert lecturer_dict['email'] == "a.smith@uni.ac.uk"
     assert isinstance(lecturer_dict['research_areas'], list)
 
+
 def test_lecturer_course_load(lecturer, course, _db):
     """Test lecturer course load update method."""
     lecturer.update_course_load()
     assert lecturer.course_load == 1
+
 
 # Test Course Model
 def test_course_creation(course):
@@ -180,10 +198,12 @@ def test_course_creation(course):
     assert course.name == "Introduction to Programming"
     assert course.credits == 15
 
+
 def test_course_relationships(course, lecturer, student):
     """Test course relationships with other models."""
     assert lecturer in course.lecturers
     assert student in course.students
+
 
 def test_course_to_dict(course):
     """Test course to_dict method."""
@@ -193,6 +213,7 @@ def test_course_to_dict(course):
     assert isinstance(course_dict['student_count'], int)
     assert isinstance(course_dict['lecturer_count'], int)
 
+
 # Test Program Model
 def test_program_creation(program):
     """Test program creation and basic attributes."""
@@ -200,9 +221,11 @@ def test_program_creation(program):
     assert program.degree_awarded == "Bachelor of Science"
     assert program.duration == 3
 
+
 def test_program_relationships(program, student):
     """Test program relationships with other models."""
     assert student in program.students
+
 
 def test_program_to_dict(program):
     """Test program to_dict method."""
@@ -211,6 +234,7 @@ def test_program_to_dict(program):
     assert program_dict['degree'] == "Bachelor of Science"
     assert isinstance(program_dict['enrolled_students'], int)
 
+
 # Test Student Model
 def test_student_creation(student):
     """Test student creation and basic attributes."""
@@ -218,11 +242,13 @@ def test_student_creation(student):
     assert student.email == "john.doe@student.uni.ac.uk"
     assert student.year_of_study == 2
 
+
 def test_student_relationships(student, program, lecturer, course):
     """Test student relationships with other models."""
     assert student.program == program
     assert student.advisor == lecturer
     assert course in student.courses
+
 
 def test_student_to_dict(student):
     """Test student to_dict method."""
@@ -230,6 +256,7 @@ def test_student_to_dict(student):
     assert student_dict['name'] == "John Doe"
     assert student_dict['email'] == "john.doe@student.uni.ac.uk"
     assert isinstance(student_dict['courses_enrolled'], list)
+
 
 def test_student_grade_constraint(_db):
     """Test student year_of_study constraint."""
@@ -244,6 +271,7 @@ def test_student_grade_constraint(_db):
         _db.session.add(invalid_student)
         _db.session.commit()
 
+
 # Test NonAcademicStaff Model
 def test_staff_creation(staff):
     """Test non-academic staff creation and basic attributes."""
@@ -251,9 +279,11 @@ def test_staff_creation(staff):
     assert staff.job_title == "Department Administrator"
     assert staff.employment_type == "Full-Time"
 
+
 def test_staff_relationships(staff, department):
     """Test non-academic staff relationships with other models."""
     assert staff.department == department
+
 
 def test_staff_to_dict(staff):
     """Test non-academic staff to_dict method."""
@@ -262,6 +292,7 @@ def test_staff_to_dict(staff):
     assert "Department Administrator" in staff_dict['position']
     assert staff_dict['department'] is not None
 
+
 # Test ResearchProject Model
 def test_research_project_creation(research_project):
     """Test research project creation and basic attributes."""
@@ -269,10 +300,12 @@ def test_research_project_creation(research_project):
     assert research_project.funding_sources == "UK Research Council"
     assert "New ML framework" in research_project.outcomes
 
+
 def test_research_project_relationships(research_project, lecturer):
     """Test research project relationships with other models."""
     assert research_project.principal_investigator == lecturer
     assert lecturer in research_project.team_members
+
 
 def test_research_project_to_dict(research_project):
     """Test research project to_dict method."""
@@ -280,6 +313,7 @@ def test_research_project_to_dict(research_project):
     assert project_dict['title'] == "Advanced Machine Learning Techniques"
     assert isinstance(project_dict['team_size'], int)
     assert isinstance(project_dict['outcomes'], list)
+
 
 # Test Model Constraints and Validations
 def test_unique_constraints(_db, department):
@@ -294,6 +328,7 @@ def test_unique_constraints(_db, department):
         _db.session.add(duplicate_dept)
         _db.session.commit()
 
+
 def test_email_uniqueness(_db, lecturer):
     """Test email uniqueness constraint."""
     with pytest.raises(Exception):
@@ -305,6 +340,7 @@ def test_email_uniqueness(_db, lecturer):
         )
         _db.session.add(duplicate_lecturer)
         _db.session.commit()
+
 
 def test_course_code_uniqueness(_db, course):
     """Test course code uniqueness constraint."""
@@ -319,13 +355,14 @@ def test_course_code_uniqueness(_db, course):
         _db.session.add(duplicate_course)
         _db.session.commit()
 
+
 # Test Cascade Deletions
 def test_department_cascade_delete(_db, department, lecturer, course, program, staff):
     """Test that deleting a department cascades properly."""
     dept_id = department.department_id
     _db.session.delete(department)
     _db.session.commit()
-    
+
     assert _db.session.get(Department, dept_id) is None
     # Verify related records are updated or deleted as per relationship configuration
     assert _db.session.get(Lecturer, lecturer.lecturer_id) is not None  # Should still exist but with null department_id

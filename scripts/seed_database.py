@@ -4,8 +4,8 @@ from app import create_app
 from app.models import Department, Lecturer, Course, Student, Program, NonAcademicStaff, ResearchProject
 from app.utils.database import db
 
-
 app = create_app()
+
 
 def create_test_data():
     with app.app_context():
@@ -21,7 +21,7 @@ def create_test_data():
             faculty="Engineering",
             research_areas="Artificial Intelligence, Cybersecurity"
         )
-        
+
         math_dept = Department(
             name="Mathematics",
             faculty="Science",
@@ -169,10 +169,11 @@ def create_test_data():
             staff1, staff2,
             project1, project2
         ])
-        
+
         db.session.commit()
 
         print("✅ Database seeded successfully!")
+
 
 if __name__ == "__main__":
     create_test_data()

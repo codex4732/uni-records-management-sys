@@ -13,9 +13,11 @@ import os
 init()
 sys.stdout = AnsiToWin32(sys.stdout, convert=True, strip=False, autoreset=True)
 
+
 def print_step(step_number, total_steps, message):
     """Print a formatted step message with progress indicator."""
     print(f"\n{Fore.CYAN}[Step {step_number}/{total_steps}] {message}{Style.RESET_ALL}\n")
+
 
 def run_command(command, cwd=None):
     """Run a command and stream its output."""
@@ -23,7 +25,7 @@ def run_command(command, cwd=None):
     if sys.platform.startswith('win'):
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        
+
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
@@ -41,9 +43,10 @@ def run_command(command, cwd=None):
             break
         if output:
             print(output.strip(), flush=True)
-            
+
     rc = process.poll()
     return rc
+
 
 def start_flask_application():
     """Start the Flask application with RESTx and Swagger UI."""
@@ -51,20 +54,24 @@ def start_flask_application():
     kill_process_on_port(5000)
 
     print("Waiting for Flask-RESTx (with Swagger UI) to start...")
-    
+
     # Get virtual environment paths
-    venv_path = os.path.join(os.getcwd(), ".venv", "Scripts")
-    venv_python = os.path.join(venv_path, "python.exe")
+    if sys.platform.startswith('win'):
+        venv_path = os.path.join(os.getcwd(), ".venv", "Scripts")
+        venv_python = os.path.join(venv_path, "python.exe")
+    else:
+        venv_path = os.path.join(os.getcwd(), ".venv", "bin")
+        venv_python = os.path.join(venv_path, "python")
     if not os.path.exists(venv_python):
         print(f"{Fore.RED}✗ Virtual environment Python not found at {venv_python}{Style.RESET_ALL}\n")
         sys.exit(1)
-    
+
     # Set environment variables for the new terminal
     powershell_env_setup = (
         "$env:VIRTUAL_ENV='" + os.path.dirname(venv_path) + "';",
         "$env:PATH='" + venv_path + ";" + os.environ['PATH'] + "';"
     )
-    
+
     # Launch Flask-RESTx debugger in a new terminal window
     try:
         if sys.platform.startswith('win'):
@@ -74,9 +81,9 @@ def start_flask_application():
                 '[Console]::OutputEncoding = [System.Text.Encoding]::UTF8;' +
                 '[Console]::InputEncoding = [System.Text.Encoding]::UTF8;' +
                 'chcp 65001 | Out-Null;' +
-                f'Write-Host "===================================================================" -ForegroundColor Cyan;' +
-                f'Write-Host "======= ~      Uni-Records-Management-Sys (URMS) APP      ~ =======" -ForegroundColor Cyan;' +
-                f'Write-Host "===================================================================" -ForegroundColor Cyan;' +
+                f'Write-Host "===============================================================" -ForegroundColor Cyan;' +
+                f'Write-Host "===== ~      Uni-Records-Management-Sys (URMS) APP      ~ =====" -ForegroundColor Cyan;' +
+                f'Write-Host "===============================================================" -ForegroundColor Cyan;' +
                 f'Write-Host "";' +
                 f'Write-Host "Flask-RESTx (with Swagger UI)" -ForegroundColor Gray;' +
                 f'Write-Host "";' +
@@ -84,22 +91,36 @@ def start_flask_application():
                 f'cd "{os.getcwd()}";' +
                 f'& "{venv_python}" run.py'
             )
-            
+
             subprocess.Popen(
-                ['start', 'powershell.exe', '-NoExit', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', powershell_cmd],
+                ['start', 'powershell.exe', '-NoExit', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command',
+                 powershell_cmd],
                 shell=True
             )
             print(f"{Fore.GREEN}✓ Launched Standalone Debug Terminal{Style.RESET_ALL}\n")
         else:
-            subprocess.Popen(['gnome-terminal', '--', 'python', 'run.py'])
+            # On macOS, use AppleScript to open Terminal and run the Flask app
+            cwd = os.getcwd().replace('"', '\\"')
+            python_exec = venv_python.replace('"', '\\"')
+            run_script = os.path.join(cwd, 'run.py').replace('"', '\\"')
+            apple_script = (
+                f'tell application "Terminal" to do script '
+                f'"cd \\"{cwd}\\" && \\"{python_exec}\\" \\"{run_script}\\""\n'
+            )
+            subprocess.Popen(
+                ['osascript', '-e', apple_script],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
     except Exception as e:
         print(f"{Fore.RED}✗ Failed to launch Standalone Debug Terminal: {str(e)}{Style.RESET_ALL}\n")
         sys.exit(1)
-    
+
     # Wait for Flask to be ready
     if not wait_for_flask():
         print(f"{Fore.RED}✗ Flask server failed to start{Style.RESET_ALL}\n")
         sys.exit(1)
+
 
 def wait_for_flask(url="http://localhost:5000/", max_attempts=30):
     """Wait for Flask server and Swagger UI to be ready."""
@@ -107,19 +128,20 @@ def wait_for_flask(url="http://localhost:5000/", max_attempts=30):
     attempt = 0
     while attempt < max_attempts:
         try:
-            response = requests.get(url)
-            if response.status_code in [200, 404]:
+            response = requests.get(url, allow_redirects=True)
+            if response.status_code < 500:
                 print(f"{Fore.GREEN}✓ Flask-RESTx (with Swagger UI) is ready!{Style.RESET_ALL}")
                 return True
         except requests.exceptions.ConnectionError:
             pass
-        
+
         time.sleep(1)
         attempt += 1
         sys.stdout.write('.')
         sys.stdout.flush()
-    
+
     return False
+
 
 def kill_process_on_port(port):
     """Kill any process running on the specified port."""
@@ -132,6 +154,7 @@ def kill_process_on_port(port):
                     return
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
+
 
 def check_migrations_folder_nonempty():
     """Check if the migrations folder exists and is not empty."""
@@ -150,9 +173,11 @@ def check_migrations_folder_nonempty():
 
     return has_files and has_versions_dir
 
+
 def open_web_browser():
     """Open the API documentation in a web browser."""
     webbrowser.open('http://localhost:5000/api/docs')
+
 
 def main():
     print(
@@ -195,18 +220,25 @@ def main():
 
             print_step(current_step, total_steps, "Starting Flask application with RESTx and Swagger UI")
 
-            start_flask_application() # Step 1
+            start_flask_application()  # Step 1
 
             current_step += 1
-        
-            # Step 2: Initialize Flask-Migrate
-            print_step(current_step, total_steps, "Initializing Flask-Migrate")
-            if run_command("flask db init") != 0:
-                print(f"{Fore.RED}✗ Flask-Migrate initialization failed{Style.RESET_ALL}")
-                sys.exit(1)
-            print(f"{Fore.GREEN}✓ Flask-Migrate initialized successfully (you can ignore the alembic.ini message){Style.RESET_ALL}")
+
+            # Step 2: Initialize Flask-Migrate (if not already initialized)
+            if check_migrations_folder_nonempty():
+                print(f"{Fore.GREEN}✓ Flask-Migrate already initialized, skipping initialization{Style.RESET_ALL}")
+            else:
+                # Ensure Flask knows which app to use for migrations
+                os.environ['FLASK_APP'] = 'run.py'
+                print_step(current_step, total_steps, "Initializing Flask-Migrate")
+                if run_command("flask db init") != 0:
+                    print(f"{Fore.RED}✗ Flask-Migrate initialization failed{Style.RESET_ALL}")
+                    sys.exit(1)
+                print(
+                    f"{Fore.GREEN}✓ Flask-Migrate initialized successfully (you can ignore the alembic.ini message)"
+                    f"{Style.RESET_ALL}")
             time.sleep(2)
-            
+
             current_step += 1
 
             # Step 3: Create initial migration
@@ -214,7 +246,7 @@ def main():
             if run_command('flask db migrate -m "Initial migration."') != 0:
                 print(f"{Fore.RED}✗ Database migration failed{Style.RESET_ALL}")
                 sys.exit(1)
-            
+
             # Verify migration creation
             if check_migrations_folder_nonempty():
                 print(f"{Fore.GREEN}✓ Database migration created successfully{Style.RESET_ALL}")
@@ -237,13 +269,14 @@ def main():
 
             # Step 5: Open API documentation
             print_step(current_step, total_steps, "Opening API documentation in web browser")
-            
+
             open_web_browser()
-            
+
             print(f"\n{Fore.GREEN}✓ ALL SETUP STEPS COMPLETED SUCCESSFULLY! ✓{Style.RESET_ALL}")
             print(f"\n{Fore.CYAN}The Flask server is running in a separate terminal window.{Style.RESET_ALL}")
             print(f"{Fore.CYAN}You can close that window when you're done with the application.{Style.RESET_ALL}")
             sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

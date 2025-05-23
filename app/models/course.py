@@ -1,5 +1,6 @@
 from app.utils.database import db
 
+
 class Course(db.Model):
     __tablename__ = 'courses'
 
@@ -10,7 +11,7 @@ class Course(db.Model):
     level = db.Column(db.String(20), nullable=False)
     credits = db.Column(db.Integer, nullable=False)
     schedule = db.Column(db.String(250))
-    
+
     # Relationships
     department_id = db.Column(db.Integer, db.ForeignKey('departments.department_id'))
     students = db.relationship('Student', secondary='enrollments', back_populates='courses')
@@ -29,6 +30,6 @@ class Course(db.Model):
             "student_count": len(self.students),
             "lecturer_count": len(self.lecturers)
         }
-    
+
     def __repr__(self):
         return f"<Course {self.code} - {self.name}>"
