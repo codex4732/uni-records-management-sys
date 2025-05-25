@@ -22,10 +22,10 @@ def create_app(config_name='development'):
     # Configure Flask-RESTx
     api = Api(
         app,
-        version='1.0',
-        title='University Record Management System API',
-        description='API documentation for URMS',
-        doc='/api/docs'
+        version='2.5',
+        title='University Record Management System (URMS) API',
+        description='<b>API documentation & demonstration for URMS</b>\n - Copyright (c) 2025, codex4732, kn-msccs-uol, JohnnyPeng, and edu-mryo',
+        doc='/api/docsNdemo',  # Custom Swagger UI path
     )
 
     # Add namespaces

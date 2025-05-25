@@ -18,13 +18,15 @@ from typing import Dict, List, Tuple, Optional
 
 from app import create_app
 from app.models import (
-    Department, Lecturer, Course, Student,
-    Program, NonAcademicStaff, ResearchProject
+    Department, Lecturer, Course, Student, CourseOffering,
+    Program, Enrollment, NonAcademicStaff, ResearchProject
 )
 from app.utils.database import db
 
+
 # Initialize Flask application context
 app = create_app()
+#random.seed(42)  # Set fixed seed for reproducible results
 
 
 def load_faculty_data() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
@@ -283,8 +285,8 @@ def create_test_data() -> None:
                         "Quantitative Methods", "Qualitative Research",
                         "Applied Research", "Sustainable Development"
                     ]
-                    research_interests = ";".join(random.sample(interests, random.randint(1, 3)))
-
+                    research_interests = "; ".join(random.sample(interests, random.randint(1, 3)))
+                
                 # Contract details (nullable)
                 contract_details = None
                 if maybe_null():
@@ -348,7 +350,7 @@ def create_test_data() -> None:
 
             # Use the new distribution function
             try:
-                lecturers_list = distribute_lecturers(lecturer_data, departments)
+                lecturers = distribute_lecturers(lecturer_data, departments)
                 for lecturer in lecturers:
                     db.session.add(lecturer)
             except ValueError as e:
@@ -374,7 +376,7 @@ def create_test_data() -> None:
                             break
 
                     # Select 1-2 lecturers from same department
-                    dept_lecturers = [lecturer for lecturer in lecturers_list if lecturer.department == dept]
+                    dept_lecturers = [l for l in lecturers if l.department == dept]
                     if not dept_lecturers:
                         # Skip creating a course if no lecturers in the department are available
                         continue
@@ -402,22 +404,17 @@ def create_test_data() -> None:
                     course = Course(
                         code=code,
                         name=f"{random.choice(course_names)} {subject}",
-                        description=f"This course covers essential concepts in {subject}",
+                        description=f"This course covers {random.choice(['core', 'essential', 'advanced', 'intermediate'])} concepts in {subject}",
                         level=random.choice(["Foundation", "Undergraduate", "Graduate", "Doctoral"]),
                         credits=random.choice([5, 10, 15, 20, 30]),
                         schedule=None if not maybe_null() else f"{random.choice(['Mon', 'Tue', 'Wed', 'Thu', 'Fri'])} "
                                                                f"{random.randint(9, 17)}:"
                                                                f"{random.choice(['00', '20', '30', '40'])}",
-                        department=dept,
-                        lecturers=course_lecturers
+                        department=dept
                     )
                     courses.append(course)
                     db.session.add(course)
-
-            # Update course load for lecturers
-            for lecturer in lecturers_list:
-                lecturer.update_course_load()
-
+            
             # ======================
             # Create Programs
             # ======================
@@ -466,7 +463,7 @@ def create_test_data() -> None:
                 program = random.choice(programs)
 
                 # Select advisor from same department as program
-                dept_lecturers = [lecturer for lecturer in lecturers_list if lecturer.department == program.department]
+                dept_lecturers = [l for l in lecturers if l.department == program.department]
                 advisor = random.choice(dept_lecturers) if dept_lecturers else random.choice(lecturers)
 
                 # Select 1-5 courses from same department
@@ -490,20 +487,118 @@ def create_test_data() -> None:
                 birth_date = date(birth_year, birth_month, birth_day)
 
                 student = Student(
-                    name=f"{row['First Name']} {row['Last Name']}",
-                    email=row['Email'],
-                    date_of_birth=birth_date,
-                    year_of_study=random.randint(1, 4),
-                    current_grades=round(random.uniform(35.0, 85.0), 1),
-                    graduation_status=None if not maybe_null() else random.choice([True, False]),
-                    disciplinary_record=None if not maybe_null() else random.choice([True, False]),
-                    program=program,
-                    advisor=advisor,
-                    courses=student_courses
+                name=f"{row['First Name']} {row['Last Name']}",
+                email=row['Email'],
+                date_of_birth=birth_date,
+                year_of_study=random.randint(1, 4),
+                current_grades=round(random.uniform(35.0, 85.0), 1),
+                graduation_status=None if not maybe_null() else random.choice([True, False]),
+                disciplinary_record=None if not maybe_null() else random.choice([True, False]),
+                program=program,
+                advisor=advisor
                 )
                 students.append(student)
                 db.session.add(student)
 
+                for course in student_courses:
+                    # Get lecturers who are supposed to teach this course
+                    course_lecturers = [lecturer for lecturer in lecturers if lecturer.department == course.department]
+
+                    if course_lecturers:
+                        lecturer = random.choice(course_lecturers)
+
+                        # Generate semester and year
+                        current_year = date.today().year
+                        semester_options = ["Fall", "Spring", "Winter"]
+                        semester = random.choice(semester_options)
+                        year = random.choice([current_year, current_year-1])
+
+                        # Create or get CourseOffering
+                        offering = CourseOffering.query.filter_by(
+                            course_id=course.course_id,
+                            lecturer_id=lecturer.lecturer_id,
+                            semester=semester,
+                            year=year
+                        ).first()
+
+                        if not offering:
+                            offering = CourseOffering(
+                                course_id=course.course_id,
+                                lecturer_id=lecturer.lecturer_id,
+                                semester=semester,
+                                year=year
+                            )
+                            db.session.add(offering)
+                            db.session.flush()  # Get offering_id
+
+                        # Determine enrollment status and grade
+                        status_weights = {
+                            'active': 0.35,      # 35% active
+                            'completed': 0.50,  # 50% completed
+                            'failed': 0.10,      # 10% failed
+                            'withdrawn': 0.05   # 5% withdrawn
+                        }
+                        status = random.choices(
+                            list(status_weights.keys()), 
+                            weights=list(status_weights.values())
+                        )[0]
+
+                        # Generate grade based on status
+                        grade = None
+                        if status == 'completed':
+                            grade = random.uniform(50, 85)  # Passing grades
+                        elif status == 'failed':
+                            grade = random.uniform(35, 49)    # Failing grades
+
+                        # Generate random enrollment date within realistic range
+                        start_date = date.today() - timedelta(days=365)  # 1 year ago
+                        end_date = date.today() - timedelta(days=30)     # 30 days ago
+                        random_days = random.randint(0, (end_date - start_date).days)
+                        enrollment_date = start_date + timedelta(days=random_days)
+
+                        # Create Enrollment with correct fields
+                        enrollment = Enrollment(
+                            student_id=student.student_id,
+                            offering_id=offering.offering_id,
+                            grade=round(grade, 2) if grade is not None else None,
+                            status=status,
+                            enrollment_date=enrollment_date
+                        )
+                        db.session.add(enrollment)
+
+            # Update course load for lecturers after all enrollments are created
+            for lecturer in lecturers:
+                lecturer.update_course_load()
+
+            # =================================
+            # Calculate Student Current Grades
+            # =================================
+            
+            # Calculate weighted average grades for each student
+            for student in students:
+                # Get all enrollments with grades (completed or failed courses)
+                graded_enrollments = [
+                    enrollment for enrollment in student.enrollments 
+                    if enrollment.grade is not None
+                ]
+                
+                if graded_enrollments:
+                    # Calculate weighted average based on course credits
+                    total_weighted_grade = 0
+                    total_credits = 0
+                    
+                    for enrollment in graded_enrollments:
+                        course_credits = enrollment.offering.course.credits
+                        total_weighted_grade += enrollment.grade * course_credits
+                        total_credits += course_credits
+                    
+                    if total_credits > 0:
+                        student.current_grades = round(total_weighted_grade / total_credits, 1)
+                    else:
+                        student.current_grades = 0.0
+                else:
+                    student.current_grades = 0.0  # No graded courses yet
+            
             # ======================
             # Create Staff
             # ======================

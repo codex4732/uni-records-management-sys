@@ -349,7 +349,7 @@ def check_migrations_folder_nonempty():
 
 def open_web_browser():
     """Open the API documentation in a web browser."""
-    webbrowser.open('http://localhost:5000/api/docs')
+    webbrowser.open('http://localhost:5000/api/docsNdemo')
 
 def cleanup_temp_files():
     if not temp_files_to_cleanup:

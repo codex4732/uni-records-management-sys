@@ -12,8 +12,9 @@ class Program(db.Model):
     enrollment_details = db.Column(db.String(250))
 
     # Relationships
-    students = db.relationship('Student', backref='program')
     department_id = db.Column(db.Integer, db.ForeignKey('departments.department_id'))
+    department = db.relationship('Department', back_populates='programs')
+    students = db.relationship('Student', back_populates='program')
 
     def to_dict(self):
         return {
@@ -26,4 +27,4 @@ class Program(db.Model):
         }
 
     def __repr__(self):
-        return f"<Program {self.program_id} - {self.name}>"
+        return f"<Program {self.program_id}: {self.name}>"

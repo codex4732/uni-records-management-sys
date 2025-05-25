@@ -1,310 +1,256 @@
-from flask_restx import Namespace, Resource, fields
-from datetime import datetime, date, timedelta
-from sqlalchemy import func
-from sqlalchemy.exc import SQLAlchemyError
+"""
+University Record Management System (URMS) API.
 
-from app.models import Student, Lecturer, Course, Department, Program, NonAcademicStaff, ResearchProject
-from app.models.association_tables import enrollments, course_lecturers, project_team_members
-from app.utils.validation import validate_id
-from app.utils.database import db
+This module sets up the main Flask-RESTx API namespace and registers all endpoints
+with their corresponding resource classes. It serves as the entry point for the
+University Record Management System (URMS) API.
+"""
+
+from flask_restx import Namespace
+
+from .api_models import create_models
+from .api_resources import (
+    StudentsList, StudentDetail, StudentAdvisor,
+    LecturersList, LecturerDetail, LecturerAdvisees,
+    CoursesList, CourseDetail,
+    EnrollmentsList,
+    DepartmentsList, DepartmentDetail,
+    StaffList
+)
+
 
 # Initialize Namespace
-ns = Namespace('api',
-               description='University Record Management System Operations',
-               path='/api',
-               ordered=True  # Maintain endpoint order in Swagger UI
-               )
+ns = Namespace(
+    'api',
+    description='University Record Management System (URMS) Operations',
+    path='/api',
+    ordered=True
+)
 
-# ======================
-# Response models
-# ======================
-student_model = ns.model('Student', {
-    'student_id': fields.Integer(description='Unique student identifier'),
-    'name': fields.String(required=True, description='Full name'),
-    'email': fields.String(description='University email address'),
-    'year': fields.Integer(description='Current year of study (1-4)'),
-    'program': fields.String(description='Enrolled academic program'),
-    'advisor': fields.String(description='Assigned faculty advisor'),
-    'courses_enrolled': fields.List(fields.String, description='List of course codes')
-})
-
-lecturer_model = ns.model('Lecturer', {
-    'lecturer_id': fields.Integer(description='Unique staff identifier'),
-    'name': fields.String(required=True, description='Full name'),
-    'email': fields.String(description='University email address'),
-    'department': fields.String(description='Affiliated department'),
-    'research_areas': fields.List(fields.String, description='Research interests')
-})
-
-course_model = ns.model('Course', {
-    'course_id': fields.Integer(description='Unique course identifier'),
-    'code': fields.String(required=True, pattern=r'[A-Z]{2,4}\d{3}', example='CS101',
-                          description='Course code (e.g. CS101)'),
-    'name': fields.String(required=True, description='Course title'),
-    'credits': fields.Integer(min=1, max=30, description='Academic credits'),
-    'department_id': fields.Integer(description='Offering department ID')
-})
-
-advisor_model = ns.model('Advisor', {
-    'name': fields.String(description='Advisor name'),
-    'email': fields.String(description='Contact email'),
-    'department': fields.String(description='Department name')
-})
-
-supervisor_model = ns.model('Supervisor', {
-    'lecturer': fields.Nested(lecturer_model),
-    'projects_count': fields.Integer(min=0, description='Number of supervised projects')
-})
-
-staff_model = ns.model('Staff', {
-    'staff_id': fields.Integer(description='Unique staff identifier'),
-    'name': fields.String(required=True, description='Full name'),
-    'position': fields.String(description='Job title and employment type'),
-    'department': fields.String(description='Affiliated department')
-})
+# Create and register all models
+models = create_models(ns)
 
 
-# ======================
-# API Endpoints
-# ======================
+# =============
+# API Endpoints Registration
+# =============
 
-# Query 1: Students in course by lecturer
-@ns.route('/students/enrolled/<course_code>/<lecturer_id>')
-@ns.doc(params={
-    'course_code': {'description': 'Course code (e.g. CS101)', 'example': 'CS101'},
-    'lecturer_id': {'description': 'Numeric lecturer identifier', 'example': '1'}
-})
-class StudentsInCourse(Resource):
-    @ns.response(200, 'Success', [student_model])
-    @ns.response(404, 'Course/Lecturer not found')
-    @ns.response(500, 'Database error')
-    def get(self, course_code, lecturer_id):
-        """Retrieve students enrolled in a specific course taught by a lecturer"""
-        validate_id(lecturer_id)
-        try:
-            students = db.session.query(Student).join(
-                Student.courses
-            ).join(
-                Course.lecturers
-            ).filter(
-                Course.code == course_code,
-                Lecturer.lecturer_id == lecturer_id
-            ).all()
-
-            if not students:
-                ns.abort(404, "No students found for this course/lecturer combination")
-
-            return [s.to_dict() for s in students]
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            ns.abort(500, "Database error occurred")
-        except Exception as e:
-            ns.abort(500, str(e))
-
-
-# Query 2: Final year students with >70% average
-@ns.route('/students/final-year/high-achievers')
-class FinalYearHighAchievers(Resource):
-    @ns.response(200, 'Success', [student_model])
+# Students Endpoints
+@ns.route('/students')
+class StudentsListEndpoint(StudentsList):
+    """Students list endpoint with filtering capabilities."""
+    
+    @ns.doc(params={
+        'year': 'Filter by year of study (1-5)',
+        'min_grade': 'Minimum grade filter (0-100)',
+        'max_grade': 'Maximum grade filter (0-100)',
+        'program_id': 'Filter by program ID',
+        'department_id': 'Filter by department ID',
+        'graduation_status': 'Filter by graduation status (true/false)',
+        'unregistered': 'Show only unregistered students (true/false)',
+        'limit': 'Maximum number of results',
+        'offset': 'Number of results to skip'
+    })
+    @ns.response(200, 'Success', models['student_model'])
+    @ns.response(400, 'Invalid parameters')
     @ns.response(404, 'No students found')
     @ns.response(500, 'Database error')
+    @ns.marshal_with(models['student_model'])
     def get(self):
-        """List final year students with average grade above 70%"""
-        try:
-            students = db.session.query(Student).filter(
-                Student.year_of_study == 4,
-                Student.current_grades > 70
-            ).all()
-
-            if not students:
-                ns.abort(404, "No high-achieving final year students found")
-
-            return [s.to_dict() for s in students]
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            ns.abort(500, "Database error occurred")
+        """List students with optional filtering."""
+        return super().get(ns, models)
 
 
-# Query 3: Students without current semester courses
-@ns.route('/students/unregistered')
-class UnregisteredStudents(Resource):
-    @ns.response(200, 'Success', [student_model])
-    @ns.response(404, 'All students registered')
+@ns.route('/students/<int:student_id>')
+@ns.doc(params={'student_id': 'Unique student identifier'})
+class StudentDetailEndpoint(StudentDetail):
+    """Individual student detail endpoint."""
+    
+    @ns.response(200, 'Success', models['student_detail_model'])
+    @ns.response(404, 'Student not found')
     @ns.response(500, 'Database error')
-    def get(self):
-        """Identify students not enrolled in any courses for current semester"""
-        try:
-            now = datetime.now()
-            current_year = now.year
-            start_date = date(current_year, 1, 1)
-            end_date = date(current_year, 6, 30) if now.month <= 6 else date(current_year, 12, 31)
-
-            subquery = db.session.query(enrollments.c.student_id).filter(
-                enrollments.c.enrollment_date.between(start_date, end_date)
-            )
-
-            students = db.session.query(Student).filter(
-                ~Student.student_id.in_(subquery)
-            ).all()
-
-            if not students:
-                ns.abort(404, "All students are registered for current semester")
-
-            return [s.to_dict() for s in students]
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            ns.abort(500, "Database error occurred")
-
-
-# Query 4: Faculty advisor contact for student
-@ns.route('/students/<student_id>/advisor')
-@ns.doc(params={'student_id': 'Numeric student identifier'})
-class StudentAdvisor(Resource):
-    @ns.marshal_with(advisor_model)
-    @ns.response(200, 'Success')
-    @ns.response(404, 'Student/Advisor not found')
-    @ns.response(500, 'Database error')
+    @ns.marshal_with(models['student_detail_model'])
     def get(self, student_id):
-        """Retrieve contact information for a student's faculty advisor"""
-        validate_id(student_id)
-        try:
-            student = db.session.get(Student, student_id)
-            if not student or not student.advisor:
-                ns.abort(404, "Advisor not found for this student")
-
-            return {
-                "name": student.advisor.name,
-                "email": student.advisor.email,
-                "department": student.advisor.department.name
-            }
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            ns.abort(500, "Database error occurred")
+        """Get detailed information about a specific student."""
+        return super().get(student_id, ns, models)
 
 
-# Query 5: Lecturers by research expertise
-@ns.route('/lecturers/expertise/<research_area>')
-@ns.doc(params={'research_area': 'Research area keyword'})
-class LecturersByExpertise(Resource):
-    @ns.response(200, 'Success', [lecturer_model])
+@ns.route('/students/<int:student_id>/advisor')
+@ns.doc(params={'student_id': 'Unique student identifier'})
+class StudentAdvisorEndpoint(StudentAdvisor):
+    """Student advisor information endpoint."""
+    
+    @ns.response(200, 'Success', models['advisor_model'])
+    @ns.response(404, 'Student or advisor not found')
+    @ns.response(500, 'Database error')
+    @ns.marshal_with(models['advisor_model'])
+    def get(self, student_id):
+        """Get advisor information for a specific student."""
+        return super().get(student_id, ns, models)
+
+
+# Lecturers Endpoints
+@ns.route('/lecturers')
+class LecturersListEndpoint(LecturersList):
+    """Lecturers list endpoint with filtering capabilities."""
+    
+    @ns.doc(params={
+        'department_id': 'Filter by department ID',
+        'expertise_area': 'Filter by expertise area keyword',
+        'research_area': 'Filter by research area keyword',
+        'employment_type': 'Filter by employment type',
+        'min_course_load': 'Minimum course load',
+        'max_course_load': 'Maximum course load',
+        'top_supervisors': 'Show top research supervisors (true/false)',
+        'limit': 'Maximum number of results',
+        'offset': 'Number of results to skip'
+    })
+    @ns.response(200, 'Success', models['lecturer_model'])
+    @ns.response(400, 'Invalid parameters')
     @ns.response(404, 'No lecturers found')
     @ns.response(500, 'Database error')
-    def get(self, research_area):
-        """Search for lecturers with expertise in a specific research area"""
-        try:
-            lecturers_list = db.session.query(Lecturer).filter(
-                Lecturer.research_interests.ilike(f"%{research_area}%")
-            ).all()
-
-            if not lecturers_list:
-                ns.abort(404, f"No lecturers found with expertise in '{research_area}'")
-
-            return [lecturer.to_dict() for lecturer in lecturers_list]
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            ns.abort(500, "Database error occurred")
+    def get(self):
+        """List lecturers with optional filtering."""
+        return super().get(ns, models)
 
 
-# Query 6: Courses by department
-@ns.route('/courses/department/<department_id>')
-@ns.doc(params={'department_id': 'Numeric department identifier'})
-class DepartmentCourses(Resource):
-    @ns.response(200, 'Success', [course_model])
-    @ns.response(404, 'Department not found')
+@ns.route('/lecturers/<int:lecturer_id>')
+@ns.doc(params={'lecturer_id': 'Unique lecturer identifier'})
+class LecturerDetailEndpoint(LecturerDetail):
+    """Individual lecturer detail endpoint."""
+    
+    @ns.response(200, 'Success', models['lecturer_detail_model'])
+    @ns.response(404, 'Lecturer not found')
     @ns.response(500, 'Database error')
-    def get(self, department_id):
-        """List all courses offered by a specific department"""
-        validate_id(department_id)
-        try:
-            courses = db.session.query(Course).join(
-                Course.lecturers
-            ).filter(
-                Lecturer.department_id == department_id
-            ).distinct().all()
-
-            if not courses:
-                ns.abort(404, "No courses found for this department")
-
-            return [c.to_dict() for c in courses]
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            ns.abort(500, "Database error occurred")
+    @ns.marshal_with(models['lecturer_detail_model'])
+    def get(self, lecturer_id):
+        """Get detailed information about a specific lecturer."""
+        return super().get(lecturer_id, ns, models)
 
 
-# Query 7: Lecturers with most supervised projects
-@ns.route('/lecturers/top-supervisors')
-class TopSupervisors(Resource):
-    @ns.response(200, 'Success', [supervisor_model])
-    @ns.response(404, 'No research projects found')
+@ns.route('/lecturers/<int:lecturer_id>/advisees')
+@ns.doc(params={'lecturer_id': 'Unique lecturer identifier'})
+class LecturerAdviseesEndpoint(LecturerAdvisees):
+    """Lecturer advisees endpoint."""
+    
+    @ns.response(200, 'Success', models['student_model'])
+    @ns.response(404, 'Lecturer not found or no advisees')
+    @ns.response(500, 'Database error')
+    @ns.marshal_with(models['student_model'])
+    def get(self, lecturer_id):
+        """Get list of students advised by a specific lecturer."""
+        return super().get(lecturer_id, ns, models)
+
+
+# Courses Endpoints
+@ns.route('/courses')
+class CoursesListEndpoint(CoursesList):
+    """Courses list endpoint with filtering capabilities."""
+    
+    @ns.doc(params={
+        'department_id': 'Filter by department ID',
+        'level': 'Filter by course level',
+        'min_credits': 'Minimum credits',
+        'max_credits': 'Maximum credits',
+        'lecturer_id': 'Filter by lecturer ID',
+        'student_id': 'Filter by student enrollment (status=active only)',
+        'limit': 'Maximum number of results',
+        'offset': 'Number of results to skip'
+    })
+    @ns.response(200, 'Success', models['course_model'])
+    @ns.response(400, 'Invalid parameters')
+    @ns.response(404, 'No courses found')
     @ns.response(500, 'Database error')
     def get(self):
-        """Identify lecturers who have supervised the most research projects"""
-        try:
-            lecturers_list = db.session.query(
-                Lecturer,
-                func.count(ResearchProject.project_id).label('project_count')
-            ).join(
-                ResearchProject,
-                Lecturer.lecturer_id == ResearchProject.principal_investigator_id
-            ).group_by(Lecturer.lecturer_id).order_by(
-                func.count(ResearchProject.project_id).desc()
-            ).limit(10).all()
-
-            if not lecturers_list:
-                ns.abort(404, "No research projects found")
-
-            return [{
-                "lecturer": lecturer[0].to_dict(),
-                "projects_count": lecturer[1]
-            } for lecturer in lecturers_list]
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            ns.abort(500, "Database error occurred")
+        """List courses with optional filtering."""
+        return super().get(ns, models)
 
 
-# Query 8: Students advised by lecturer
-@ns.route('/lecturer/<lecturer_id>/advisees')
-@ns.doc(params={'lecturer_id': 'Numeric lecturer identifier'})
-class LecturerAdvisees(Resource):
-    @ns.response(200, 'Success', [student_model])
-    @ns.response(404, 'No advisees found')
+@ns.route('/courses/<string:course_code>')
+@ns.doc(params={'course_code': 'Course code (e.g. CS101)'})
+class CourseDetailEndpoint(CourseDetail):
+    """Individual course detail endpoint."""
+    
+    @ns.response(200, 'Success', models['course_detail_model'])
+    @ns.response(404, 'Course not found')
     @ns.response(500, 'Database error')
-    def get(self, lecturer_id):
-        """Retrieve list of students advised by a specific lecturer"""
-        validate_id(lecturer_id)
-        try:
-            students = db.session.query(Student).filter(
-                Student.advisor_id == lecturer_id
-            ).all()
-
-            if not students:
-                ns.abort(404, "This lecturer has no advisees")
-
-            return [s.to_dict() for s in students]
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            ns.abort(500, "Database error occurred")
+    @ns.marshal_with(models['course_detail_model'])
+    def get(self, course_code):
+        """Get detailed information about a specific course."""
+        return super().get(course_code, ns, models)
 
 
-# Query 9: Staff by department
-@ns.route('/staff/department/<department_id>')
-@ns.doc(params={'department_id': 'Numeric department identifier'})
-class DepartmentStaff(Resource):
-    @ns.response(200, 'Success', [staff_model])
+# Enrollments Endpoints
+@ns.route('/enrollments')
+class EnrollmentsListEndpoint(EnrollmentsList):
+    """Enrollments list endpoint with filtering capabilities."""
+    
+    @ns.doc(params={
+        'course_code': 'Filter by course code',
+        'student_id': 'Filter by student ID',
+        'lecturer_id': 'Filter by lecturer ID',
+        'semester': 'Filter by semester',
+        'year': 'Filter by year',
+        'status': 'Filter by enrollment status',
+        'from_date': 'Filter enrollments from date (YYYY-MM-DD)',
+        'to_date': 'Filter enrollments to date (YYYY-MM-DD)',
+        'has_grade': 'Filter by grade presence (true/false)',
+        'limit': 'Maximum number of results',
+        'offset': 'Number of results to skip'
+    })
+    @ns.response(200, 'Success', models['enrollment_simplified_model'])
+    @ns.response(400, 'Invalid parameters')
+    @ns.response(404, 'No enrollments found')
+    @ns.response(500, 'Database error')
+    @ns.marshal_list_with(models['enrollment_simplified_model'])
+    def get(self):
+        """List enrollments with optional filtering."""
+        return super().get(ns, models)
+
+
+# Departments Endpoints
+@ns.route('/departments')
+class DepartmentsListEndpoint(DepartmentsList):
+    """Departments list endpoint."""
+    
+    @ns.response(200, 'Success', models['department_model'])
+    @ns.response(404, 'No departments found')
+    @ns.response(500, 'Database error')
+    def get(self):
+        """List all departments."""
+        return super().get(ns, models)
+
+
+@ns.route('/departments/<int:department_id>')
+@ns.doc(params={'department_id': 'Unique department identifier'})
+class DepartmentDetailEndpoint(DepartmentDetail):
+    """Individual department detail endpoint."""
+    
+    @ns.response(200, 'Success', models['department_detail_model'])
+    @ns.response(404, 'Department not found')
+    @ns.response(500, 'Database error')
+    @ns.marshal_with(models['department_detail_model'])
+    def get(self, department_id):
+        """Get detailed information about a specific department."""
+        return super().get(department_id, ns, models)
+
+
+# Staff Endpoints
+@ns.route('/staff')
+class StaffListEndpoint(StaffList):
+    """Non-academic staff list endpoint with filtering capabilities."""
+    
+    @ns.doc(params={
+        'department_id': 'Filter by department ID',
+        'job_title': 'Filter by job title',
+        'employment_type': 'Filter by employment type',
+        'limit': 'Maximum number of results',
+        'offset': 'Number of results to skip'
+    })
+    @ns.response(200, 'Success', models['staff_model'])
+    @ns.response(400, 'Invalid parameters')
     @ns.response(404, 'No staff found')
     @ns.response(500, 'Database error')
-    def get(self, department_id):
-        """Find all non-academic staff members in a specific department"""
-        validate_id(department_id)
-        try:
-            staff = db.session.query(NonAcademicStaff).filter(
-                NonAcademicStaff.department_id == department_id
-            ).all()
-
-            if not staff:
-                ns.abort(404, "No staff found in this department")
-
-            return [s.to_dict() for s in staff]
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            ns.abort(500, "Database error occurred")
+    def get(self):
+        """List non-academic staff with optional filtering."""
+        return super().get(ns, models)

@@ -7,6 +7,7 @@ load_dotenv()
 
 class Config:
     """Base configuration with common settings"""
+    SECRET_KEY = os.getenv('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     @staticmethod
@@ -14,23 +15,29 @@ class Config:
         pass
 
 
-class BaseDatabaseConfig(Config):
-    """Configuration that reads the database URL from a single env var"""
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_CONNECTION_STRING')
-
-
-class DevelopmentConfig(BaseDatabaseConfig):
+class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.getenv('DEV_DATABASE_CONNECTION_STRING')
 
 
-class ProductionConfig(BaseDatabaseConfig):
+class ProductionConfig(Config):
     """Production configuration."""
     DEBUG = False
+    SQLALCHEMY_DATABASE_URI = os.getenv('PROD_DATABASE_CONNECTION_STRING')
+
+
+class TestConfig(Config):
+    """Test configuration"""
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = os.getenv('TEST_SECRET_KEY', 'test-key-fallback')
 
 
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
+    'testing': TestConfig,
     'default': DevelopmentConfig
 }
