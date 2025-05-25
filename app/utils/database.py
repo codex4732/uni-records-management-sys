@@ -30,7 +30,6 @@ def init_db(app):
         from app.models.research_project import ResearchProject
         from app.models.non_acad_staff import NonAcademicStaff
         from app.models.association_tables import project_team_members
-        from app.models.base import BaseModel
 
         db.create_all()
         print("✅ Database tables READY")

@@ -12,4 +12,3 @@ if 'sphinx' not in sys.modules:
     from .research_project import ResearchProject
     from .non_acad_staff import NonAcademicStaff
     from .association_tables import project_team_members
-    from .base import BaseModel
