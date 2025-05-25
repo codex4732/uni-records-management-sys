@@ -14,7 +14,7 @@ import pandas as pd
 import os
 import json
 import sys
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple
 
 from app import create_app
 from app.models import (

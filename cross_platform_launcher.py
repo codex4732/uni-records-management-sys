@@ -4,11 +4,12 @@ import time
 import webbrowser
 from flask import Flask
 import requests
-from colorama import init, Fore, Back, Style, AnsiToWin32
+from colorama import init, Fore, Back, Style
 import psutil
 import signal
 import os
 import platform
+
 
 # Initialize colorama with proper encoding
 init(strip=False, convert=sys.platform.startswith('win'), autoreset=True)

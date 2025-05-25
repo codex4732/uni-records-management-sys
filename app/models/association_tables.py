@@ -1,5 +1,4 @@
 # Association tables
-from sqlalchemy import func
 from app.utils.database import db
 
 
